@@ -185,7 +185,10 @@ namespace SMS.Controllers
 
             List<WeighmentDetails> datewiseResult = new List<WeighmentDetails>();
             datewiseResult = weighDetailsWithdate.Where(x => x.dateReal >= fromDateReal && x.dateReal <= toDateReal).OrderByDescending(x => x.serialNo).ToList();
-            return Json(datewiseResult, JsonRequestBehavior.AllowGet);
+            //Jimmy Mathew::History data load bug fix::10032018
+            var jsonResult = Json(datewiseResult,JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
         }
 #endregion
         #region EmptyList
