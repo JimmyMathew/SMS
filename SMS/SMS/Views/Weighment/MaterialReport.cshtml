@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "Material Report";
+}
+<style>
+    body .modal-open .modal {
+        display: flex !important;
+        height: 100%;
+    }
+
+        body.modal-open .modal .modal-dialog {
+            margin: auto;
+        }
+</style>
+<script>
+    var table;
+    function GetColumns() {
+        var columns = [];
+        columns = [
+                      
+                            { data: "material" },
+                            { data: "rate" },
+                            { data: "weight" },
+                            { data: "total" },
+
+        ];
+        return columns;
+    }
+    function refreshgrid(itemlist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#usergrid').DataTable({
+            data: itemlist,
+            columns: GetColumns(),
+            //buttons: $scope.GetAddButton(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "footerCallback": function (row, data, start, end, display) {
+                var api = this.api(), data;
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
+                        i : 0;
+                };
+                var AmountTotal = api
+                    .column(3, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+                // Update footer
+                //alert('Weight' + pageTotal + ' ( Total Weight' + total + ' total)');
+
+                var totalAmountLabel = document.getElementById('totalAmountLabel');
+                totalAmountLabel.innerHTML = AmountTotal;
+                //$(api.column(14).footer()).html(
+                //    'Weight' + pageTotal + ' ( Total Weight' + total + ' total)'
+                //);
+            },
+            "bDestroy": true,
+            select: false,
+            lengthChange: false,
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Weighment/GetMaterialReportEmpty",
+            success: function (result) {
+                refreshgrid(result, null);
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+
+    });
+    function GetMaterialReport() {
+        var weighmentType = $("#weighmentType").val();
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            data: JSON.stringify({ "weighmentType": weighmentType}),
+            cache: false,
+            type: 'POST',
+            url: "/Weighment/GetMaterialReport",
+            success: function (result) {
+               refreshgrid(result, null);
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#"> Material Report </a>
+</div>
+<div class="col-md-12"></div>
+    <div class="col-md-3" style="margin-left: 260px;">
+    <div class="form-group label-floating">
+        <label>Type</label>
+        @*<input id="toTime" type="text" class="form-control">*@
+        <select id="weighmentType" class="form-control" onchange="GetMaterialReport()">
+            <option value="Purchase">Purchase</option>
+            <option value="Sales">Sales</option>
+
+        </select>
+    </div>
+</div>
+<div class="col-md-3">
+
+    <div class="card card-stats">
+        <div class="card-content">
+            <p class="category">Total amount</p>
+            <h3 class="title">
+                <span id="totalAmountLabel">0</span>
+
+                @*<small>ton</small>*@
+            </h3>
+        </div>
+      
+    </div>
+</div>
+    <div class="content" style="margin-top:-30px;">
+        <div class="container-fluid">
+            <div class="row">
+                <div style="width:1089px; overflow: auto;">
+                    <table id="usergrid" class="display" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+
+                                <th style="width:35%;">Material Name</th>
+                                <th style="width:35%;">Rate</th>
+                                <th style="width:35%;">Weight</th>
+                                <th style="width:35%;">Total Amount</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+

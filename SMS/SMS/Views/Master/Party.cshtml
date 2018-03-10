@@ -1,0 +1,397 @@
+﻿@{
+    ViewBag.Title = "Party";
+}
+<style>
+   
+    body .modal-open .modal
+    {
+        display: flex !important;
+        height: 100%;
+    }
+    body.modal-open .modal .modal-dialog {
+        margin: auto;
+    }
+    
+</style>
+<script>
+    var table;
+    
+    function EditData(partyName,partyType, mobile, telephone, address, city, pincode, state, country, email, pancard,gstIn,partyId)
+    {
+       
+        $("#partyModal").modal('show');
+        $("#partyId").val(partyId);
+        $("#partyName").val(partyName);
+        $("#partyType").val(partyType);
+        $("#mobile").val(mobile);
+        $("#telephone").val(telephone);
+        $("#address").val(address);
+        $("#city").val(city);
+        $("#pincode").val(pincode);
+        $("#state").val(state);
+        $("#country").val(country);
+        $("#email").val(email);
+        $("#pancard").val(pancard);
+        $("#gstIn").val(pancard);
+        
+        
+    }
+    function DeleteData(partyId)
+    {
+        
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            data: JSON.stringify( { "partyId": partyId }),
+            url: "/Master/DeleteParties",
+            success: function (result) {
+                //refreshgrid(result[1].Data);
+                refreshgrid(result[1].Data, result[0].Message);
+                //ShowNotification('bottom', 'right', result[0].Message);
+            },
+            
+        });
+
+    }
+    function GetColumns() {
+       var role= '@Session["role"].ToString()';
+       
+        var columns=[];
+        if (role == "Admin") {
+            columns = [
+
+                            {
+                                data: "partyId",
+                                "render": function (data, type, row, meta) {
+                                    var a = "";
+                                    a = '<a href="#" onclick="EditData(\''
+                                    + row.partyName + '\',\''
+                                     + row.partyType + '\',\''
+                                    + row.mobile + '\',\''
+                                    + row.telephone + '\',\''
+                                    + row.address + '\',\''
+                                    + row.city + '\',\''
+                                    + row.pincode + '\',\''
+                                    + row.state + '\',\''
+                                    + row.country + '\',\''
+                                    + row.email + '\',\''
+                                    + row.pancard + '\',\''
+                                    + row.gstIn + '\',\''
+                                    + row.partyId + '\')">Edit</a> <a href="#"  onclick="DeleteData(\'' + row.partyId
+                                    + '\')">Delete</a>';
+                                    return a;
+                                }
+                            },
+
+                                 { data: "partyName" },
+                                  { data: "partyType" },
+                                 { data: "mobile" },
+                                 { data: "telephone" },
+                                 { data: "address" },
+                                 { data: "city" },
+                                 { data: "pincode" },
+                                 { data: "state" },
+                                 { data: "country" },
+                                 { data: "email" },
+                                 { data: "pancard" },
+                                  { data: "gstIn" },
+
+
+            ];
+        }
+        else {
+            columns = [
+                { data: "partyName" },
+                                  { data: "partyType" },
+                                 { data: "mobile" },
+                                 { data: "telephone" },
+                                 { data: "address" },
+                                 { data: "city" },
+                                 { data: "pincode" },
+                                 { data: "state" },
+                                 { data: "country" },
+                                 { data: "email" },
+                                 { data: "pancard" },
+                                  { data: "gstIn" },
+            ];
+        }
+        return columns;
+    }
+    function refreshgrid(partylist,message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#partygrid').DataTable({
+            data: partylist,
+            columns: GetColumns(),
+            //buttons: $scope.GetAddButton(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+        ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Master/GetAllParties",
+            success: function (result) {
+                refreshgrid(result,null); 
+            },
+            //error: function (data) {
+            //    alert("Error retrieving party details");
+            //}
+        });
+
+    });
+    function AddParty() {
+        $("#partyModal").modal('show');
+        $("#partyId").val("");
+        //$("#partyType").val("");
+        $("#partyName").val("");
+        $("#mobile").val("");
+        $("#telephone").val("");
+        $("#address").val("");
+        $("#city").val("");
+        $("#pincode").val("");
+        $("#state").val("");
+        $("#country").val("");
+        $("#email").val("");
+        $("#pancard").val("");
+        $("#gstIn").val("");
+      
+        $("#partyModal").modal('show');
+    }
+    function SaveParty() {
+        var partyId = $("#partyId").val();
+        var partyName = $("#partyName").val();
+        var partyType = $("#partyType").val();
+        var mobile =$("#mobile").val();
+        var telephone= $("#telephone").val();
+        var address =$("#address").val();
+        var city =$("#city").val();
+        var pincode=$("#pincode").val();
+        var state=$("#state").val();
+        var country=$("#country").val();
+        var email=$("#email").val();
+        var pancard = $("#pancard").val();
+        var gstIn = $("#gstIn").val();
+
+        if (partyName == null || partyName == undefined || partyName == "") {
+            alert("Please enter the party name");
+            return false;
+        }
+        else if (partyType == null || partyType == undefined || partyType == ""|| partyType == "0") {
+            alert("Please select party Type");
+            return false;
+        }
+        else if (city == null || city == undefined || city == "") {
+            alert("Please enter the city ");
+            return false;
+        }
+        else if (mobile == null || mobile == undefined || mobile == "") {
+            alert("Please enter the mobile number ");
+            return false;
+        }
+
+        else {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "partyId": partyId, "partyName": partyName, "partyType": partyType, "mobile": mobile, "telephone": telephone, "address": address, "city": city, "pincode": pincode, "state": state, "country": country, "email": email, "pancard": pancard, "gstIn": gstIn }),
+                url: "/Master/SaveParties",
+                success: function (result) {
+                    $("#partyModal").modal('hide');
+                    refreshgrid(result[1].Data, result[0].Message);
+
+                },
+                error: function (data) {
+                    ShowNotification('bottom', 'right', "Error. Contact Administrator");
+                }
+            });
+        }
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#"> Parties </a>
+    <button type="submit" class="btn btn-primary pull-right" onclick="AddParty()">Add</button>
+    </div>
+    
+
+    <div class="content" style="margin-top:-30px;">
+        <div class="container-fluid">
+            <div class="row">
+                <div style="width:1089px; overflow: auto;">
+                        <table id="partygrid" class="display" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    @{ var role = System.Web.HttpContext.Current.Session["role"].ToString();}
+                                    @{ if (role == "Admin")
+                                     {
+                                        <th style="width:10%;"> Action</th>
+                                     }}
+                                    <th style="width:10%;">Party Name</th>
+                                    <th style="width:10%;"> Party Type</th>
+                                    <th style="width:10%;">Mobile</th>
+                                    <th style="width:10%;">Telephone</th>
+                                    <th style="width:10%;">Address</th>
+                                    <th style="width:10%;">City</th>
+                                    <th style="width:10%;">Pin Code</th>
+                                    <th style="width:10%;">State</th>
+                                    <th style="width:10%;">Country</th>
+                                    <th style="width:10%;">email</th>
+                                    <th style="width:10%;">PAN card</th>
+                                    <th style="width:10%;">GST IN</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="partyModal" class="modal fade">
+        <img src="evgcms_loading2.gif" ng-show="loading" />
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    @*<h4 class="modal-title" id="modellabel">Confirmation</h4>*@
+
+                    @*<div class="card-header" data-background-color="purple">
+                            <h4 class="title">Edit Profile</h4>
+                            <p class="category">Complete your profile</p>
+                        </div>*@
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header" data-background-color="purple">
+                            <h4 class="title">Add/Edit party</h4>
+                            <p class="category">Complete Party details</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <input id="partyId" type="hidden" class="form-control">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label>Party Type</label>
+                                            <select id="partyType" class="form-control">
+                                                <option value="0">Select...</option>
+                                                <option value="Supplier">Supplier</option>
+                                                <option value="Contractor">Contractor</option>
+                                            </select>
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label>Party Name</label>
+                                            <input id="partyName" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label>Mobile</label>
+                                            <input id="mobile" type="number" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label>Tel</label>
+                                            <input id="telephone" type="number" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group label-floating">
+                                            <label>Adress</label>
+                                            <input id="address" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group label-floating">
+                                            <label>City</label>
+                                            <input id="city" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating">
+                                            <label>Pin Code</label>
+                                            <input id="pincode" type="number" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group label-floating">
+                                            <label>State</label>
+                                            <input id="state" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label>Country</label>
+                                            <input id="country" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating">
+                                            <label>email</label>
+                                            <input id="email" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group label-floating">
+                                            <label>PAN</label>
+                                            <input id="pancard" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group label-floating">
+                                            <label>GST IN</label>
+                                            <input id="gstIn" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<button type="button" class="btn btn-default" data-dismiss="modal" tabindex="3">Close</button>*@
+                                @*<button type="submit" class="btn btn-primary pull-right" data-dismiss="modal">Close</button>*@
+                                <button type="submit" class="btn btn-primary pull-right" onclick="SaveParty()">Save</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+

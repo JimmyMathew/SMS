@@ -1,0 +1,220 @@
+﻿@{
+    ViewBag.Title = "Item";
+}
+<style>
+    body .modal-open .modal {
+        display: flex !important;
+        height: 100%;
+    }
+
+        body.modal-open .modal .modal-dialog {
+            margin: auto;
+        }
+</style>
+<script>
+    var table;
+
+    function EditData(material,rate,materialId) {
+        $("#itemModal").modal('show');
+        $("#materialId").val(materialId);
+        $("#rate").val(rate);
+        $("#material").val(material);
+     
+    }
+    function DeleteData(materialId) {
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            data: JSON.stringify({ "materialId": materialId }),
+            url: "/Master/DeleteItems",
+            success: function (result) {
+                //refreshgrid(result[1].Data);
+                refreshgrid(result[1].Data, result[0].Message);
+                //ShowNotification('bottom', 'right', result[0].Message);
+            },
+
+        });
+
+    }
+    function GetColumns() {
+        var columns = [];
+        columns = [
+                        {
+                            data: "materialId",
+                            "render": function (data, type, row, meta) {
+                                var a = "";
+                                a = '<a href="#" onclick="EditData(\''
+                                + row.material + '\',\''
+                                + row.rate + '\',\''
+                                + row.materialId + '\')">Edit</a> <a href="#"  onclick="DeleteData(\'' + row.materialId
+                                + '\')">Delete</a>';
+                                return a;
+                            }
+                        },
+
+                            { data: "material" },
+                            { data: "rate" },
+        ];
+        return columns;
+    }
+    function refreshgrid(itemlist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#itemgrid').DataTable({
+            data: itemlist,
+            columns: GetColumns(),
+            //buttons: $scope.GetAddButton(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Master/GetAllItems",
+            success: function (result) {
+                refreshgrid(result, null);
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+
+    });
+    function AddItem() {
+        $("#materialId").val("");
+        $("#material").val("");
+        $("#rate").val("");
+        $("#itemModal").modal('show');
+
+    }
+    function SaveItem() {
+        var materialId = $("#materialId").val();
+        var material = $("#material").val();
+        var rate = $("#rate").val();
+        if (material == null || material == undefined || material == "") {
+            alert("Please enter the material name");
+            return false;
+        }
+        else if (rate == null || rate == undefined || rate == "") {
+            alert("Please enter the rate");
+            return false;
+        }
+        else {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "materialId": materialId, "material": material, "rate": rate }),
+                url: "/Master/SaveItems",
+                success: function (result) {
+                    $("#itemModal").modal('hide');
+                    refreshgrid(result[1].Data, result[0].Message);
+
+                },
+                error: function (data) {
+                    ShowNotification('bottom', 'right', "Error. Contact Administrator");
+                }
+            });
+        }
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#"> Items </a>
+    <button type="submit" class="btn btn-primary pull-right" onclick="AddItem()">Add</button>
+</div>
+
+
+<div class="content" style="margin-top:-30px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div style="width:1089px; overflow: auto;">
+                <table id="itemgrid" class="display" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width:35%;"> Action</th>
+                            @*<th style="width:25%;">Material ID</th>*@
+                            <th style="width:35%;">Material</th>
+                            <th style="width:30%;">Rate</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="itemModal" class="modal fade">
+    <img src="evgcms_loading2.gif" ng-show="loading" />
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                @*<h4 class="modal-title" id="modellabel">Confirmation</h4>*@
+
+                @*<div class="card-header" data-background-color="purple">
+                        <h4 class="title">Edit Profile</h4>
+                        <p class="category">Complete your profile</p>
+                    </div>*@
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-header" data-background-color="purple">
+                        <h4 class="title">Add/Edit Items</h4>
+                        <p class="category">Complete item details</p>
+                    </div>
+                    <div class="card-content">
+                        <form>
+                            <input id="materialId" type="hidden" class="form-control">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Material</label>
+                                        <input id="material" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Rate</label>
+                                        <input id="rate" type="number" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            @*<button type="button" class="btn btn-default" data-dismiss="modal" tabindex="3">Close</button>*@
+                            @*<button type="submit" class="btn btn-primary pull-right" data-dismiss="modal">Close</button>*@
+                            <button type="submit" class="btn btn-primary pull-right" onclick="SaveItem()">Save</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

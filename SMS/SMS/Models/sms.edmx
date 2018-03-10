@@ -1,0 +1,430 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="smsModel.Store" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="comport">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="port" Type="varchar" MaxLength="50" />
+          <Property Name="buadRate" Type="varchar" MaxLength="50" />
+          <Property Name="parity" Type="varchar" MaxLength="50" />
+          <Property Name="dataBit" Type="varchar" MaxLength="50" />
+          <Property Name="stopBit" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="customer">
+          <Key>
+            <PropertyRef Name="customerId" />
+          </Key>
+          <Property Name="customerId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="customerName" Type="varchar" MaxLength="100" />
+          <Property Name="email" Type="varchar" MaxLength="100" />
+          <Property Name="mobile" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="item">
+          <Key>
+            <PropertyRef Name="materialId" />
+          </Key>
+          <Property Name="materialId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="material" Type="varchar" MaxLength="500" />
+          <Property Name="rate" Type="float" />
+          <Property Name="createdBy" Type="varchar" MaxLength="500" />
+          <Property Name="createdOn" Type="date" />
+          <Property Name="updatedBy" Type="varchar" MaxLength="500" />
+          <Property Name="updatedOn" Type="date" />
+        </EntityType>
+        <EntityType Name="party_details">
+          <Key>
+            <PropertyRef Name="partyId" />
+          </Key>
+          <Property Name="partyId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="partyType" Type="varchar" MaxLength="100" />
+          <Property Name="partyName" Type="varchar" MaxLength="50" />
+          <Property Name="mobile" Type="bigint" />
+          <Property Name="telephone" Type="bigint" />
+          <Property Name="address" Type="varchar" MaxLength="500" />
+          <Property Name="city" Type="varchar" MaxLength="50" />
+          <Property Name="pincode" Type="int" />
+          <Property Name="state" Type="varchar" MaxLength="50" />
+          <Property Name="country" Type="varchar" MaxLength="50" />
+          <Property Name="email" Type="varchar" MaxLength="30" />
+          <Property Name="pancard" Type="varchar" MaxLength="30" />
+          <Property Name="gstIn" Type="varchar" MaxLength="30" />
+          <Property Name="createBy" Type="varchar" MaxLength="100" />
+          <Property Name="createdOn" Type="date" />
+          <Property Name="updatedBy" Type="varchar" MaxLength="100" />
+          <Property Name="updatedOn" Type="date" />
+        </EntityType>
+        <EntityType Name="users">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="employeeName" Type="varchar" MaxLength="100" />
+          <Property Name="username" Type="varchar" MaxLength="100" />
+          <Property Name="password" Type="varchar" MaxLength="100" />
+          <Property Name="role" Type="varchar" MaxLength="100" />
+          <Property Name="createdBy" Type="varchar" MaxLength="100" />
+          <Property Name="CreatedOn" Type="date" />
+          <Property Name="UpdatedBy" Type="varchar" MaxLength="100" />
+          <Property Name="UpdatedOn" Type="date" />
+        </EntityType>
+        <EntityType Name="vehicle">
+          <Key>
+            <PropertyRef Name="vehicleId" />
+          </Key>
+          <Property Name="vehicleId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="partyId" Type="bigint" Nullable="false" />
+          <Property Name="vehicleType" Type="varchar" MaxLength="50" />
+          <Property Name="vehicleNo" Type="varchar" MaxLength="30" />
+          <Property Name="tareWeight" Type="double" />
+          <Property Name="createdBy" Type="varchar" MaxLength="100" />
+          <Property Name="createdOn" Type="date" />
+          <Property Name="updatedBy" Type="varchar" MaxLength="100" />
+          <Property Name="updatedOn" Type="date" />
+        </EntityType>
+        <EntityType Name="weighment">
+          <Key>
+            <PropertyRef Name="serialNo" />
+          </Key>
+          <Property Name="serialNo" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="date" Type="text" />
+          <Property Name="weighmentType" Type="varchar" MaxLength="50" />
+          <Property Name="salesMode" Type="varchar" MaxLength="50" />
+          <Property Name="unit" Type="varchar" MaxLength="50" />
+          <Property Name="vehicleNo" Type="varchar" MaxLength="50" />
+          <Property Name="driverName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="customerName" Type="varchar" MaxLength="50" />
+          <Property Name="placeOfDelivery" Type="varchar" MaxLength="100" />
+          <Property Name="loadType" Type="varchar" MaxLength="50" />
+          <Property Name="material" Type="varchar" MaxLength="50" />
+          <Property Name="grossWeight" Type="double" />
+          <Property Name="tareWeight" Type="double" />
+          <Property Name="netWeight" Type="double" />
+          <Property Name="rate" Type="double" />
+          <Property Name="tax" Type="double" />
+          <Property Name="rent" Type="double" />
+          <Property Name="amount" Type="double" />
+          <Property Name="netAmount" Type="double" />
+          <Property Name="createdBy" Type="varchar" MaxLength="100" />
+          <Property Name="createdOn" Type="datetime" Precision="0" />
+          <Property Name="updatedBy" Type="varchar" MaxLength="100" />
+          <Property Name="updatedOn" Type="datetime" Precision="0" />
+        </EntityType>
+        <Association Name="vehicle_ibfk_1">
+          <End Role="party_details" Type="Self.party_details" Multiplicity="1" />
+          <End Role="vehicle" Type="Self.vehicle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="party_details">
+              <PropertyRef Name="partyId" />
+            </Principal>
+            <Dependent Role="vehicle">
+              <PropertyRef Name="partyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="smsModelStoreContainer">
+          <EntitySet Name="comport" EntityType="Self.comport" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="customer" EntityType="Self.customer" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="item" EntityType="Self.item" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="party_details" EntityType="Self.party_details" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="users" EntityType="Self.users" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="vehicle" EntityType="Self.vehicle" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="weighment" EntityType="Self.weighment" Schema="sms" store:Type="Tables" />
+          <AssociationSet Name="vehicle_ibfk_1" Association="Self.vehicle_ibfk_1">
+            <End Role="party_details" EntitySet="party_details" />
+            <End Role="vehicle" EntitySet="vehicle" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="smsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="smsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="comports" EntityType="smsModel.comport" />
+          <EntitySet Name="customers" EntityType="smsModel.customer" />
+          <EntitySet Name="items" EntityType="smsModel.item" />
+          <EntitySet Name="party_details" EntityType="smsModel.party_details" />
+          <EntitySet Name="users" EntityType="smsModel.user" />
+          <EntitySet Name="vehicles" EntityType="smsModel.vehicle" />
+          <EntitySet Name="weighments" EntityType="smsModel.weighment" />
+          <AssociationSet Name="vehicle_ibfk_1" Association="smsModel.vehicle_ibfk_1">
+            <End Role="party_details" EntitySet="party_details" />
+            <End Role="vehicle" EntitySet="vehicles" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="comport">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="port" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="buadRate" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="parity" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="dataBit" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="stopBit" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="customer">
+          <Key>
+            <PropertyRef Name="customerId" />
+          </Key>
+          <Property Name="customerId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="customerName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="mobile" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="item">
+          <Key>
+            <PropertyRef Name="materialId" />
+          </Key>
+          <Property Name="materialId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="material" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="rate" Type="Single" />
+          <Property Name="createdBy" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="createdOn" Type="DateTime" />
+          <Property Name="updatedBy" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="updatedOn" Type="DateTime" />
+        </EntityType>
+        <EntityType Name="party_details">
+          <Key>
+            <PropertyRef Name="partyId" />
+          </Key>
+          <Property Name="partyId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="partyType" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="partyName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="mobile" Type="Int64" />
+          <Property Name="telephone" Type="Int64" />
+          <Property Name="address" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="city" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="pincode" Type="Int32" />
+          <Property Name="state" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="country" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="email" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="pancard" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="gstIn" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="createBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="createdOn" Type="DateTime" />
+          <Property Name="updatedBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="updatedOn" Type="DateTime" />
+          <NavigationProperty Name="vehicles" Relationship="smsModel.vehicle_ibfk_1" FromRole="party_details" ToRole="vehicle" />
+        </EntityType>
+        <EntityType Name="user">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="employeeName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="username" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="password" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="role" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="createdBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" />
+          <Property Name="UpdatedBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="UpdatedOn" Type="DateTime" />
+        </EntityType>
+        <EntityType Name="vehicle">
+          <Key>
+            <PropertyRef Name="vehicleId" />
+          </Key>
+          <Property Name="vehicleId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="partyId" Type="Int64" Nullable="false" />
+          <Property Name="vehicleType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="vehicleNo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="tareWeight" Type="Double" />
+          <Property Name="createdBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="createdOn" Type="DateTime" />
+          <Property Name="updatedBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="updatedOn" Type="DateTime" />
+          <NavigationProperty Name="party_details" Relationship="smsModel.vehicle_ibfk_1" FromRole="vehicle" ToRole="party_details" />
+        </EntityType>
+        <EntityType Name="weighment">
+          <Key>
+            <PropertyRef Name="serialNo" />
+          </Key>
+          <Property Name="serialNo" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="date" Type="String" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Name="weighmentType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="salesMode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="unit" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="vehicleNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="driverName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="customerName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="placeOfDelivery" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="loadType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="grossWeight" Type="Double" />
+          <Property Name="tareWeight" Type="Double" />
+          <Property Name="netWeight" Type="Double" />
+          <Property Name="rate" Type="Double" />
+          <Property Name="tax" Type="Double" />
+          <Property Name="rent" Type="Double" />
+          <Property Name="amount" Type="Double" />
+          <Property Name="netAmount" Type="Double" />
+          <Property Name="createdBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="createdOn" Type="DateTime" />
+          <Property Name="updatedBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="updatedOn" Type="DateTime" />
+        </EntityType>
+        <Association Name="vehicle_ibfk_1">
+          <End Type="smsModel.party_details" Role="party_details" Multiplicity="1" />
+          <End Type="smsModel.vehicle" Role="vehicle" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="party_details">
+              <PropertyRef Name="partyId" />
+            </Principal>
+            <Dependent Role="vehicle">
+              <PropertyRef Name="partyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="smsModelStoreContainer" CdmEntityContainer="smsEntities">
+          <EntitySetMapping Name="comports">
+            <EntityTypeMapping TypeName="smsModel.comport">
+              <MappingFragment StoreEntitySet="comport">
+                <ScalarProperty Name="stopBit" ColumnName="stopBit" />
+                <ScalarProperty Name="dataBit" ColumnName="dataBit" />
+                <ScalarProperty Name="parity" ColumnName="parity" />
+                <ScalarProperty Name="buadRate" ColumnName="buadRate" />
+                <ScalarProperty Name="port" ColumnName="port" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="customers">
+            <EntityTypeMapping TypeName="smsModel.customer">
+              <MappingFragment StoreEntitySet="customer">
+                <ScalarProperty Name="mobile" ColumnName="mobile" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="customerName" ColumnName="customerName" />
+                <ScalarProperty Name="customerId" ColumnName="customerId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="items">
+            <EntityTypeMapping TypeName="smsModel.item">
+              <MappingFragment StoreEntitySet="item">
+                <ScalarProperty Name="updatedOn" ColumnName="updatedOn" />
+                <ScalarProperty Name="updatedBy" ColumnName="updatedBy" />
+                <ScalarProperty Name="createdOn" ColumnName="createdOn" />
+                <ScalarProperty Name="createdBy" ColumnName="createdBy" />
+                <ScalarProperty Name="rate" ColumnName="rate" />
+                <ScalarProperty Name="material" ColumnName="material" />
+                <ScalarProperty Name="materialId" ColumnName="materialId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="party_details">
+            <EntityTypeMapping TypeName="smsModel.party_details">
+              <MappingFragment StoreEntitySet="party_details">
+                <ScalarProperty Name="updatedOn" ColumnName="updatedOn" />
+                <ScalarProperty Name="updatedBy" ColumnName="updatedBy" />
+                <ScalarProperty Name="createdOn" ColumnName="createdOn" />
+                <ScalarProperty Name="createBy" ColumnName="createBy" />
+                <ScalarProperty Name="gstIn" ColumnName="gstIn" />
+                <ScalarProperty Name="pancard" ColumnName="pancard" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="country" ColumnName="country" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="pincode" ColumnName="pincode" />
+                <ScalarProperty Name="city" ColumnName="city" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="telephone" ColumnName="telephone" />
+                <ScalarProperty Name="mobile" ColumnName="mobile" />
+                <ScalarProperty Name="partyName" ColumnName="partyName" />
+                <ScalarProperty Name="partyType" ColumnName="partyType" />
+                <ScalarProperty Name="partyId" ColumnName="partyId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="users">
+            <EntityTypeMapping TypeName="smsModel.user">
+              <MappingFragment StoreEntitySet="users">
+                <ScalarProperty Name="UpdatedOn" ColumnName="UpdatedOn" />
+                <ScalarProperty Name="UpdatedBy" ColumnName="UpdatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="createdBy" ColumnName="createdBy" />
+                <ScalarProperty Name="role" ColumnName="role" />
+                <ScalarProperty Name="password" ColumnName="password" />
+                <ScalarProperty Name="username" ColumnName="username" />
+                <ScalarProperty Name="employeeName" ColumnName="employeeName" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="vehicles">
+            <EntityTypeMapping TypeName="smsModel.vehicle">
+              <MappingFragment StoreEntitySet="vehicle">
+                <ScalarProperty Name="updatedOn" ColumnName="updatedOn" />
+                <ScalarProperty Name="updatedBy" ColumnName="updatedBy" />
+                <ScalarProperty Name="createdOn" ColumnName="createdOn" />
+                <ScalarProperty Name="createdBy" ColumnName="createdBy" />
+                <ScalarProperty Name="tareWeight" ColumnName="tareWeight" />
+                <ScalarProperty Name="vehicleNo" ColumnName="vehicleNo" />
+                <ScalarProperty Name="vehicleType" ColumnName="vehicleType" />
+                <ScalarProperty Name="partyId" ColumnName="partyId" />
+                <ScalarProperty Name="vehicleId" ColumnName="vehicleId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="weighments">
+            <EntityTypeMapping TypeName="smsModel.weighment">
+              <MappingFragment StoreEntitySet="weighment">
+                <ScalarProperty Name="updatedOn" ColumnName="updatedOn" />
+                <ScalarProperty Name="updatedBy" ColumnName="updatedBy" />
+                <ScalarProperty Name="createdOn" ColumnName="createdOn" />
+                <ScalarProperty Name="createdBy" ColumnName="createdBy" />
+                <ScalarProperty Name="netAmount" ColumnName="netAmount" />
+                <ScalarProperty Name="amount" ColumnName="amount" />
+                <ScalarProperty Name="rent" ColumnName="rent" />
+                <ScalarProperty Name="tax" ColumnName="tax" />
+                <ScalarProperty Name="rate" ColumnName="rate" />
+                <ScalarProperty Name="netWeight" ColumnName="netWeight" />
+                <ScalarProperty Name="tareWeight" ColumnName="tareWeight" />
+                <ScalarProperty Name="grossWeight" ColumnName="grossWeight" />
+                <ScalarProperty Name="material" ColumnName="material" />
+                <ScalarProperty Name="loadType" ColumnName="loadType" />
+                <ScalarProperty Name="placeOfDelivery" ColumnName="placeOfDelivery" />
+                <ScalarProperty Name="customerName" ColumnName="customerName" />
+                <ScalarProperty Name="driverName" ColumnName="driverName" />
+                <ScalarProperty Name="vehicleNo" ColumnName="vehicleNo" />
+                <ScalarProperty Name="unit" ColumnName="unit" />
+                <ScalarProperty Name="salesMode" ColumnName="salesMode" />
+                <ScalarProperty Name="weighmentType" ColumnName="weighmentType" />
+                <ScalarProperty Name="date" ColumnName="date" />
+                <ScalarProperty Name="serialNo" ColumnName="serialNo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

@@ -1,0 +1,351 @@
+﻿@{
+    ViewBag.Title = "Reports";
+}
+<style>
+    body .modal-open .modal {
+        display: flex !important;
+        height: 100%;
+    }
+
+        body.modal-open .modal .modal-dialog {
+            margin: auto;
+        }
+    .form-group.is-focused .form-control {
+        outline: none;
+        background-image: linear-gradient(#9c27b0, #9c27b0), linear-gradient(#D2D2D2, #D2D2D2);
+        background-size: 100% 2px, 100% 1px;
+        box-shadow: none;
+        transition-duration: 0.3s;
+        font-size: 15px;
+    }
+    .form-control, .form-group .form-control {
+        border: 0;
+        background-image: linear-gradient(#9c27b0, #9c27b0), linear-gradient(#D2D2D2, #D2D2D2);
+        background-size: 0 2px, 100% 1px;
+        background-repeat: no-repeat;
+        background-position: center bottom, center calc(100% - 1px);
+        background-color: transparent;
+        transition: background 0s ease-out;
+        float: none;
+        box-shadow: none;
+        border-radius: 0;
+        font-weight: 400;
+        font-size: 15PX;
+    }
+</style>
+<script>
+    var table;
+    function GetColumns() {
+        var columns = [];
+        columns = [
+                        {
+                            data: "serialNo",
+                        },//visible
+
+                            { data: "dateStr" },//visible
+                            { data: "weighmentType" },
+                            { data: "salesMode" },//visible
+                             { data: "material" },//visible
+                             { data: "vehicleNo" },//visible
+                              { data: "customerName" },//visible
+                            
+                            //{ data: "unit", "visible": false },
+                            
+                            //{ data: "driverName", "visible": false },
+                           
+                            { data: "placeOfDelivery" },//visible
+                            //{ data: "loadType", "visible": false },
+                           
+                            { data: "grossWeight" },//visible
+                            { data: "tareWeight" },//visible
+                            { data: "netWeight" },//visible
+                            { data: "rate" },//visible
+                            { data: "tax" },//visible
+                            //{ data: "rent", "visible": false },
+                            //{ data: "amount", "visible": false },
+                            { data: "netAmount" },//visible
+                            { data: "createdBy"},
+                            //{ data: "updatedBy", "visible": false },
+
+        ];
+        return columns;
+    }
+    function refreshgrid(itemlist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#historygrid').DataTable({
+            data: itemlist,
+            columns: GetColumns(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "footerCallback": function (row, data, start, end, display) {
+                var api = this.api(), data;
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
+                        i : 0;
+                };
+                // Total over this page
+                var WeightTotal = api
+                    .column(10, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+                var AmountTotal = api
+                    .column(13, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+                // Update footer
+                //alert('Weight' + pageTotal + ' ( Total Weight' + total + ' total)');
+                
+                var totalWeightLabel = document.getElementById('totalWeightLabel');
+                totalWeightLabel.innerHTML = WeightTotal;
+                var totalAmountLabel = document.getElementById('totalAmountLabel');
+                totalAmountLabel.innerHTML = AmountTotal;
+                //$(api.column(14).footer()).html(
+                //    'Weight' + pageTotal + ' ( Total Weight' + total + ' total)'
+                //);
+            },
+            //"bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $('.form-group').on('focusout', function () {
+            $(this).removeClass('is-empty');
+            $(this).addClass('is-focused');
+
+            $('.filter').on('keyup change', function () {
+                //clear global search values
+                table.search('');
+                table.column($(this).data('columnIndex')).search(this.value).draw();
+            });
+
+            $(".dataTables_filter input").on('keyup change', function () {
+                //clear column search values
+                table.columns().search('');
+                //clear input values
+                $('.filter').val('');
+            });
+        });
+    
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Weighment/ReportGenerationEmpty",
+            success: function (result) {
+                refreshgrid(result[0], null);
+                var ddl = $('#material');
+                ddl.empty();
+                ddl.append(
+                       $('<option/>', {
+                           value: "All",
+                           html: "All"
+                       })
+                   );
+                $.each(result[1], function () {
+                    ddl.append(
+                        $('<option/>', {
+                            value: this.material,
+                            html: this.material
+                        })
+                    );
+                });
+                var CustomerStr = "";
+                for (var i = 0; i < result[2].length; ++i) {
+                    CustomerStr += '<option value="' + result[2][i] + '" />'; // Storing options in variable
+                }
+                var customerList = document.getElementById("customerList");
+                customerList.innerHTML = CustomerStr;
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+       
+    });
+
+    function GenerateDateReports() {
+        var fromDate = $("#fromDate").val();
+        var toDate = $("#toDate").val();
+        if (fromDate == "" || fromDate == null || fromDate == undefined) {
+            alert("Please enter from date");
+            return false;
+        }
+        else if (toDate == "" || toDate == null || toDate == undefined) {
+            alert("Please enter to date");
+            return false;
+        }
+        else {
+            var fromDateStr = "";
+            var toDateStr = "";
+            fromDate = new Date(fromDate);
+            var fromDay = fromDate.getDate();
+            var fromMonth = fromDate.getMonth() + 1;
+            var fromYear = fromDate.getFullYear();
+            fromDateStr = fromYear + '-' + fromMonth + '-' + fromDay;
+            toDate = new Date(toDate);
+            var toDay = toDate.getDate();
+            var toMonth = toDate.getMonth() + 1;
+            var toYear = toDate.getFullYear();
+            toDateStr = toYear + '-' + toMonth + '-' + toDay;
+            var material = $("#material").val();
+            var customer = $("#customer").val();
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "fromDate": fromDateStr, "toDate": toDateStr, "material": material, "customer": customer }),
+                url: "/Weighment/ReportDateWiseGeneration",
+                success: function (result) {
+                    refreshgrid(result, "");
+                },
+
+            });
+        }
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#"> Reports </a>
+    @*<button type="submit" class="btn btn-primary pull-left" onclick="AddItem()">Add</button>*@
+</div>
+<br />
+<div class="row">
+    <div class="col-md-2" style="margin-left: -88px;">
+        <div class="form-group label-floating">
+            <label>From</label>
+            <input id="fromDate" type="datetime-local" class="form-control" value="2018-01-01T00:00:00">
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group label-floating">
+            <label>To</label>
+            <input id="toDate" type="datetime-local" class="form-control" value="2018-01-01T00:00:00">
+        </div>
+    </div>
+    <div class="col-md-1">
+        <div class="form-group label-floating">
+            <label>Material</label>
+            <select id="material" class="form-control"></select>
+        </div>
+    </div>
+    <div class="col-md-1">
+        <div class="form-group label-floating">
+            <label>Customer</label>
+            <input type="text" id="customer" list="customerList" class="form-control" />
+            <datalist id="customerList"></datalist>
+            </div>
+        </div>
+           
+            <div class="col-md-1">
+                <div class="form-group label-floating">
+                    <button type="submit" class="btn btn-primary" onclick="GenerateDateReports()">Get</button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card card-stats">
+
+                    <div class="card-content">
+                        Total weight:<br />
+                        <span id="totalWeightLabel">0</span><br />
+                        Total Amount:<br />
+                        <span id="totalAmountLabel">0</span>
+
+
+
+                    </div>
+                </div>
+                @*<span id="totalWeightLabel">0</span>*@
+            </div>
+            <b>Filters</b>
+            <div>
+                <label>User :</label>
+                <input type='text' value='' class='filter' data-column-index='14' style=" margin-left: 33px;">
+            </div>
+            <div>
+                <label>Type :</label>
+                <input type='text' value='' class='filter' data-column-index='2' style=" margin-left: 32px;">
+            </div>
+            @*<div>
+                <label>Customer :</label>
+                <input type='text' value='' class='filter' data-column-index='6'>
+            </div>*@
+            <div>
+                <label>Mode :</label>
+                <input type='text' value='' class='filter' data-column-index='3' style=" margin-left: 26px;">
+            </div>
+        </div>
+
+
+        <div class="content" id="WeighmentTable" style="margin-top:-30px;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div style="width:1089px; overflow: auto;">
+                        <table id="historygrid" class="display" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th style="width:20%;"> S No</th>
+                                    <th style="width:10%;">Date-Time</th>
+                                    <th style="width:10%;">Type</th>
+                                    <th style="width:10%;">Sales Mode</th>
+                                    <th style="width:10%;">Material</th>
+                                    <th style="width:10%;">Vehicle No</th>
+                                    <th style="width:10%;">Customer Name</th>
+                                    <th style="width:10%;">Place Of Delivery</th>
+                                    <th style="width:10%;">Gross Weight</th>
+                                    <th style="width:10%;">Tare Weight</th>
+                                    <th style="width:10%;">Net Weight</th>
+                                    <th style="width:10%;">Rate</th>
+                                    <th style="width:10%;">Tax Amt</th>
+                                    <th style="width:10%;">Net Amount</th>
+                                    <th style="width:10%;">User</th>
+                                    @*
+
+
+
+                                        <th style="width:10%;">Unit</th>
+
+                                        <th style="width:10%;">DriverName</th>
+
+
+                                        <th style="width:10%;">Load Type</th>
+
+
+                                        <th style="width:10%;">Rent</th>
+                                        <th style="width:10%;">Amount</th>
+
+
+                                        <th style="width:10%;">Updated By</th>*@
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
