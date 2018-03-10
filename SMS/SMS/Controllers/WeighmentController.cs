@@ -142,9 +142,50 @@ namespace SMS.Controllers
         [HttpPost]
         public ActionResult GetHistory()
         {
+            //Jimmy Mathew::Adding date functionality to History::10032018
+            var today = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            string[] space = today.Split(' ');
+            string[] todaydatearr = space[0].Split('-');
+            DateTime todayDateReal = new DateTime(Int32.Parse(todaydatearr[0]), Int32.Parse(todaydatearr[1]), Int32.Parse(todaydatearr[2]));
             List<WeighmentDetails> weighDetails = new List<WeighmentDetails>();
+            List<WeighmentDetails> weighDetailsWithdate = new List<WeighmentDetails>();
             weighDetails = weighDAL.ReadWeighmentDetails().Where(x => x.loadType == "Full Load").OrderByDescending(x => x.serialNo).ToList();
-            return Json(weighDetails, JsonRequestBehavior.AllowGet);
+            foreach (var d in weighDetails)
+            {
+                string[] spaceDate = d.date.Split(' ');
+                string[] datearr = spaceDate[0].Split('-');
+                DateTime datReal = new DateTime(Int32.Parse(datearr[0]), Int32.Parse(datearr[1]), Int32.Parse(datearr[2]));
+                d.dateReal = datReal;
+                weighDetailsWithdate.Add(d);
+            }
+            var datewiseResult = weighDetailsWithdate.Where(x => x.dateReal == todayDateReal).OrderByDescending(x => x.serialNo).ToList();
+
+            return Json(datewiseResult, JsonRequestBehavior.AllowGet);
+        }
+
+        //Jimmy Mathew::Adding date functionality to History::10032018
+        [HttpPost]
+        public ActionResult GetDateWiseHistory(string fromDate, string toDate)
+        {
+            string[] fromdatearr = fromDate.Split('-');
+            string[] todatearr = toDate.Split('-');
+            DateTime fromDateReal = new DateTime(Int32.Parse(fromdatearr[0]), Int32.Parse(fromdatearr[1]), Int32.Parse(fromdatearr[2]));
+            DateTime toDateReal = new DateTime(Int32.Parse(todatearr[0]), Int32.Parse(todatearr[1]), Int32.Parse(todatearr[2]));
+            List<WeighmentDetails> weighDetails = new List<WeighmentDetails>();
+            List<WeighmentDetails> weighDetailsWithdate = new List<WeighmentDetails>();
+            weighDetails = weighDAL.ReadWeighmentDetails().Where(x => x.loadType == "Full Load").OrderByDescending(x => x.serialNo).ToList();
+            foreach (var d in weighDetails)
+            {
+                string[] spaceDate = d.date.Split(' ');
+                string[] datearr = spaceDate[0].Split('-');
+                DateTime datReal = new DateTime(Int32.Parse(datearr[0]), Int32.Parse(datearr[1]), Int32.Parse(datearr[2]));
+                d.dateReal = datReal;
+                weighDetailsWithdate.Add(d);
+            }
+
+            List<WeighmentDetails> datewiseResult = new List<WeighmentDetails>();
+            datewiseResult = weighDetailsWithdate.Where(x => x.dateReal >= fromDateReal && x.dateReal <= toDateReal).OrderByDescending(x => x.serialNo).ToList();
+            return Json(datewiseResult, JsonRequestBehavior.AllowGet);
         }
 #endregion
         #region EmptyList
@@ -325,7 +366,6 @@ namespace SMS.Controllers
             string[] todatearr = toDate.Split('-');
             DateTime fromDateReal = new DateTime(Int32.Parse(fromdatearr[0]), Int32.Parse(fromdatearr[1]), Int32.Parse(fromdatearr[2]));
             DateTime toDateReal = new DateTime(Int32.Parse(todatearr[0]), Int32.Parse(todatearr[1]), Int32.Parse(todatearr[2]));
-
             List<WeighmentDetails> weighDetails = new List<WeighmentDetails>();
             List<WeighmentDetails> weighDetailsWithdate = new List<WeighmentDetails>();
             weighDetails = weighDAL.ReadWeighmentDetails().Where(x => x.loadType == "Full Load").ToList();

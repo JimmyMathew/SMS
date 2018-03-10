@@ -140,6 +140,45 @@
         ];
         return columns;
     }
+    //Jimmy Mathew::Adding date functionality to History::10032018
+    function GenerateDateHistory() {
+        var fromDate = $("#fromDate").val();
+        var toDate = $("#toDate").val();
+        if (fromDate == "" || fromDate == null || fromDate == undefined) {
+            alert("Please enter from date");
+            return false;
+        }
+        else if (toDate == "" || toDate == null || toDate == undefined) {
+            alert("Please enter to date");
+            return false;
+        }
+        else {
+            var fromDateStr = "";
+            var toDateStr = "";
+            fromDate = new Date(fromDate);
+            var fromDay = fromDate.getDate();
+            var fromMonth = fromDate.getMonth() + 1;
+            var fromYear = fromDate.getFullYear();
+            fromDateStr = fromYear + '-' + fromMonth + '-' + fromDay;
+            toDate = new Date(toDate);
+            var toDay = toDate.getDate();
+            var toMonth = toDate.getMonth() + 1;
+            var toYear = toDate.getFullYear();
+            toDateStr = toYear + '-' + toMonth + '-' + toDay;
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "fromDate": fromDateStr, "toDate": toDateStr}),
+                url: "/Weighment/GetDateWiseHistory",
+                success: function (result) {
+                    refreshgrid(result, "");
+                },
+
+            });
+        }
+    }
     function refreshgrid(itemlist, message) {
 
         if (table != undefined && table != null)
@@ -193,8 +232,28 @@
     <a href="/Weighment/History"  class="navbar-brand"> History </a>
     @*<button type="submit" class="btn btn-primary pull-right" onclick="AddItem()">Add</button>*@
 </div>
+<br/>
+ <div class="row">
+    <div class="col-md-2" style="margin-left: -88px;">
+        <div class="form-group label-floating">
+            <label>From</label>
+            <input id="fromDate" type="datetime-local" class="form-control" value="2018-01-01T00:00:00">
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group label-floating">
+            <label>To</label>
+            <input id="toDate" type="datetime-local" class="form-control" value="2018-01-01T00:00:00">
+        </div>
+    </div>
+    
 
-
+    <div class="col-md-1">
+        <div class="form-group label-floating">
+            <button type="submit" class="btn btn-primary" onclick="GenerateDateHistory()">Get</button>
+        </div>
+    </div>
+</div>
 <div class="content" id="WeighmentTable" style="margin-top:-30px;">
     <div class="container-fluid">
         <div class="row">
