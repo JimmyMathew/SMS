@@ -5,13 +5,14 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="82d9bbdb258b45c9bf054e30d88f75e6" Name="Diagram1" ZoomLevel="78">
-        <EntityTypeShape EntityType="smsModel.comport" Width="1.5" PointX="5.75" PointY="0.75" />
-        <EntityTypeShape EntityType="smsModel.customer" Width="1.5" PointX="2.75" PointY="5.75" />
-        <EntityTypeShape EntityType="smsModel.item" Width="1.5" PointX="5.75" PointY="3.75" />
+        <EntityTypeShape EntityType="smsModel.bill" Width="1.5" PointX="5.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smsModel.comport" Width="1.5" PointX="2.75" PointY="5.75" />
+        <EntityTypeShape EntityType="smsModel.customer" Width="1.5" PointX="4.75" PointY="6.75" />
+        <EntityTypeShape EntityType="smsModel.item" Width="1.5" PointX="6.75" PointY="6.75" />
         <EntityTypeShape EntityType="smsModel.party_details" Width="1.5" PointX="0.75" PointY="1" />
         <EntityTypeShape EntityType="smsModel.user" Width="1.5" PointX="7.75" PointY="0.75" />
         <EntityTypeShape EntityType="smsModel.vehicle" Width="1.5" PointX="3" PointY="1.875" />
-        <EntityTypeShape EntityType="smsModel.weighment" Width="1.5" PointX="7.75" PointY="4.75" />
+        <EntityTypeShape EntityType="smsModel.weighment" Width="1.5" PointX="0.75" PointY="8.75" />
         <AssociationConnector Association="smsModel.vehicle_ibfk_1" />
       </Diagram>
     </edmx:Diagrams>

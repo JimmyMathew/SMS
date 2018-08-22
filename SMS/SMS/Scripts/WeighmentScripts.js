@@ -51,7 +51,6 @@ function printDiv() {
     $("#pnetWeight").html(netWeight);
     $("#pmaterial").html(material);
 
-
     var serialNo = $("#serialNo").val();
     var date = $("#date").val();
     var weighmentType = $("#weighmentType").val();
@@ -165,7 +164,7 @@ function printDiv() {
     }
     $("#printModal").modal('hide');
 }
-    function TotalAmountcalc() {
+ function TotalAmountcalc() {
 
         var rate = parseFloat($("#rate").val());
         var netWeight = parseFloat($("#netWeight").val());

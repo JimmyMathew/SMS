@@ -188,6 +188,53 @@ $(function(){
     };
 });
 
+    //Jimmy Mathew::Billing Module functions::22082018
+function printBillingDialogOpen() {
+    $("#printModalBilling").modal('show');
+}
+function printBill() {
+    var toName = $("#toName").val();
+    var addLine1 = $("#addLine1").val();
+    var addLine2 = $("#addLine2").val();
+    var addLine3 = $("#addLine3").val();
+    var transportMode = $("#transportMode").val();
+    var vehicleNoBill = $("#vehicleNoBill").val();
+    var placeOfDeliveryBill = $("#placeOfDeliveryBill").val();
+    var materialDescription = $("#materialDescription").val();
+    var netWeightQty = $("#netWeightQty").val();
+    var rateBill = $("#rateBill").val();
+    var amountBill = parseInt($("#amountBill").val());
+    var cgst = parseInt($("#cgst").val());
+    var sgst = parseInt($("#sgst").val());
+    var mainTotal = $("#mainTotal").val();
+    var totalInWords = $("#totalInWords").val();
+
+    $("#ptoName").html(toName);
+    $("#paddLine1").html(addLine1);
+    $("#paddLine2").html(addLine2);
+    $("#paddLine3").html(addLine3);
+    $("#ptransportMode").html(transportMode);
+    $("#pvehicleNoBill").html(vehicleNoBill);
+    $("#pplaceOfDeliveryBill").html(placeOfDeliveryBill);
+    $("#pmaterialDescription").html(materialDescription);
+    $("#pnetWeightQty").html(netWeightQty);
+    $("#prateBill").html(rateBill);
+    $("#pamountBill").html(amountBill);
+    $("#pcgst").html(cgst);
+    $("#psgst").html(sgst);
+    $("#pmainTotal").html(mainTotal);
+    $("#ptotalInWords").html(totalInWords);
+
+    var divToPrint = document.getElementById('BillingDivToPrint');
+    var newWin = window.open('', 'Print-Window');
+    newWin.document.open();
+    newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+    newWin.document.close();
+    setTimeout(function () { newWin.close(); }, 1000);
+    location.reload();
+    $("#printModalBilling").modal('hide');
+}
+
 
 </script>
 </head>
@@ -480,5 +527,168 @@ $(function(){
         <table width="600" style="margin-left: 150px;"><tr><td><h3>Net Weight:</h3></td><td><h3><label id="pnetWeight"></label></h3></td><td align="right"><label><b>Signature</b></label></td></tr></table>
         @*<label style="margin-left: 700px;"><b>Signature</b></label>*@
     </div>   
+
+
+    @*Jimmy Mathew::Billing Module Print::22082018*@
+    <div id="printModalBilling" class="modal fade" style="display: none;">
+        <img src="evgcms_loading2.gif" ng-show="loading" />
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header" data-background-color="purple">
+                            <h4 class="title">Confirmation</h4>
+                            <p class="category">Print Confirmation</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group label-floating">
+                                            <h3>Do you want to print the bill? </h3>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary pull-right" onclick="billSave()">No</button>
+                                <button type="submit" class="btn btn-primary pull-right" onclick="printBill()">Yes</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id='BillingDivToPrint' style="display:none;">
+        <div class="container">
+
+            <table class="table table-bordered">
+                <tr>
+                    <td rowspan="2" colspan="1" width="30%"><strong>Bill No: <label id="pbillNo"></label></strong></td>
+
+                    <td colspan="2"><div style="padding-left:65%;"><strong>Phone:044-27554786</strong></div></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><div style="padding-left:65%;"><strong>Cell:9382256010</strong></div></td>
+                </tr>
+                <tr>
+
+                    <td colspan="3">
+                        <center>
+                            <h4><strong>SMS BLUE METALS</strong></h4>
+                            <h5>
+                                <strong>
+                                    No.17, First Street,Silavattam Village, Madurantakam Taluk<br />
+                                    Kanchipuram Dist- 603306<br />
+                                    GSTIN: 33ABJFS2238Q1ZP<br />
+                                    State: Tamil Nadu, Code-33
+                                </strong>
+                            </h5>
+                        </center>
+                    </td>
+
+                </tr>
+                <tr>
+
+                    <td colspan="3"><center><strong>Tax Invoice</strong></center></td>
+
+                </tr>
+                <tr>
+                    <td colspan="3"><strong>To</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="3"><strong>Thiru/Sir: </strong> <label id="ptoName"></label></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><label id="paddLine1"></label>,</td>
+                    <td><div style="padding-left:50%;"><strong>Date: </strong><label id="pdateBill"></label></div></td>
+
+                </tr>
+                <tr>
+                    <td colspan="2"><label id="paddLine2"></label>,</td>
+                    <td><div style="padding-left:50%;"><strong>Transport Mode: </strong> <label id="ptransportMode"></label></div></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><label id="paddLine3"></label>.</td>
+                    <td><div style="padding-left:50%;"><strong>Vehicle number: </strong> <label id="pvehicleNoBill"></label></div></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>GSTIN: </strong>33ABJFS2238Q1ZP </td>
+                    <td><div style="padding-left:50%;"><strong>Place of Delivery: </strong> <label id="pplaceOfDeliveryBill"></label></div></td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+
+                        <table width="100%" class="table table-bordered">
+                            <thead>
+                            <th align="center">S.No</th>
+                            <th align="center">Decription</th>
+                            <th align="center">Qty</th>
+                            <th align="center">Rate</th>
+                            <th align="center">Amount</th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td width="10%" align="center">1</td>
+                                    <td width="40%" align="center">
+
+                                        <label id="pmaterialDescription"></label>
+
+
+                                    </td>
+                                    <td width="10%" align="center"><label id="pnetWeightQty"></label></td>
+                                    <td width="10%" align="center"><label id="prateBill"></label></td>
+                                    <td width="10%" align="center"><label id="pamountBill"></label></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td colspan="2"><div style="padding-left:39%;"><strong>Total:</strong> <label id="pamountBill"></label></div></td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td colspan="3">Add: CGST: 2.5%:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="text-align: right"><label id="pcgst"></label></span></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td colspan="3">Add: SGST: 2.5%:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="text-align: right"><label id="psgst"></label></span></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><strong>Total Amount in words:</strong> <span> <label id="totalInWords"></label></span> </td>
+                                    <td colspan="3">Total Amount: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="text-align: right"><label id="pmainTotal"></label></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </td>
+
+
+
+                </tr>
+
+                <tr>
+                    <td colspan="1">
+                        <strong>Declaration:</strong> <br />We declare that this invoice shows the actual price of the goods
+                        described and that all particulars are true and correct
+                    </td>
+                    <td rowspan="2" colspan="2">
+                        <div style="padding-left:40%;"> For SMS Blue Metals</div>
+                        <div style="padding-left:40%; padding-top: 30%;"> Authorized Signatory</div>
+                    </td>
+
+                <tr><td>Terms &amp; Conditions
+        </td>
+                </tr>
+
+
+        @*</tr>*@
+        </table>
+    </div>
+  </div>
 </body>
 </html>

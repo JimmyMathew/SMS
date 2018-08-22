@@ -17,6 +17,7 @@ namespace SMS.Controllers
     {
         WeighmentDAL weighDAL = new WeighmentDAL();
         MasterDAL materDAL = new MasterDAL();
+        BillDAL billDAL = new BillDAL();
         SerialPort serialPort;
         
         
@@ -133,6 +134,7 @@ namespace SMS.Controllers
         }
        
 #endregion
+
        #region Hitory
         [LoginCheckAttribute]
         public ActionResult History()
@@ -191,7 +193,8 @@ namespace SMS.Controllers
             return jsonResult;
         }
 #endregion
-        #region EmptyList
+
+       #region EmptyList
         [LoginCheckAttribute]
         public ActionResult EmptyList()
         {
@@ -216,7 +219,8 @@ namespace SMS.Controllers
 
         }
         #endregion
-        #region Reports
+
+       #region Reports
         [LoginCheckAttribute]
         public ActionResult Report()
         {
@@ -488,8 +492,7 @@ namespace SMS.Controllers
         }
         #endregion
 
-
-        #region Serial Port 
+       #region Serial Port 
         public ActionResult ScanGrossWeight()
         {
             var weight = SetSerialPortConfig();
@@ -537,6 +540,47 @@ namespace SMS.Controllers
         }
         
         #endregion
+
+       #region Billing
+        public ActionResult SaveBillingDetails(string toName, string addLine1, string addLine2, string addLine3, string transportMode, string vehicleNoBill, string placeOfDeliveryBill, string materialDescription, string netWeightQty, string rateBill, string amountBill, string cgst, string sgst, string totalInWords, string mainTotal)
+        {
+            if (rateBill == "" || rateBill == null)
+                rateBill = "0";
+            if (amountBill == "" || amountBill == null)
+                amountBill = "0";
+            if (cgst == "" || cgst == null)
+                cgst = "0";
+            if (sgst == "" || sgst == null)
+                sgst = "0";
+            if (mainTotal == "" || mainTotal == null)
+                mainTotal = "0";
+
+            Response res = new Response();
+            List<object> resultList = new List<object>();
+            billDetails bill = new billDetails();
+            bill.dateBill = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            bill.toName = toName;
+            bill.addLine1 = addLine1;
+            bill.addLine2=addLine2;
+            bill.addLine3=addLine3;
+            bill.transportMode=transportMode;
+            bill.vehicleNoBill=vehicleNoBill;
+            bill.placeOfDeliveryBill=placeOfDeliveryBill;
+            bill.materialDescription=materialDescription;
+            bill.netWeightQty=netWeightQty;
+            bill.rateBill = float.Parse(rateBill);
+            bill.amountBill = float.Parse(amountBill);
+            bill.cgst = float.Parse(cgst);
+            bill.sgst = float.Parse(sgst);
+            bill.mainTotal = float.Parse(mainTotal);
+            bill.totalInWords = totalInWords;
+            res = billDAL.SaveBillDetails(bill);
+            resultList.Add(res);
+            return Json(resultList, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+      
 
     }
 }

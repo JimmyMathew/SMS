@@ -25,6 +25,7 @@ namespace SMS.Models
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<bill> bills { get; set; }
         public virtual DbSet<comport> comports { get; set; }
         public virtual DbSet<customer> customers { get; set; }
         public virtual DbSet<item> items { get; set; }

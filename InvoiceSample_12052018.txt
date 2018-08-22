@@ -1,0 +1,32 @@
+<html>
+<body>
+	<table border="1">
+	<tr>
+	<td rowspan="2">Bill No: 9151</td>
+	<td rowspan="2">Sri Sithivinayagar Thunai</td>
+	<td>Phone:044-27554786</td>
+</tr>
+<tr>
+<td>Cell:9382256010</td>
+</tr>
+<tr>
+<td></td>
+<td>SMS BLUE METALS<br/>
+No.17,First Street,Silavattam Village,Madurantakam Taluk<br/>
+Kanchipuram Dist- 603306<br/>
+GSTIN: 33ABJFS2238Q1ZP<br/>
+State: Tamil Nadu Code -33
+</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Tax Invoice</td>
+<td></td>
+</tr>
+<tr>
+<td rowspan="2">To</td>
+</tr>
+</table>
+</body>
+</html>
