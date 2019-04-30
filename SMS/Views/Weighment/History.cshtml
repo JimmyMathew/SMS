@@ -1,0 +1,881 @@
+﻿@{
+    ViewBag.Title = "History";
+}
+@*<style>
+        body .modal-open .modal {
+            display: flex !important;
+            height: 100%;
+        }
+
+            body.modal-open .modal .modal-dialog {
+                margin: auto;
+            }
+    </style>*@
+<script>
+    var table;
+    //Jimmy Mathew::Billing Module integration::16062018
+    function numberToEnglish(n, custom_join_character) {
+
+        var string = n.toString(),
+            units, tens, scales, start, end, chunks, chunksLen, chunk, ints, i, word, words;
+
+        var and = custom_join_character || 'and';
+
+        /* Is number zero? */
+        if (parseInt(string) === 0) {
+            return 'zero';
+        }
+
+        /* Array of units as words */
+        units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+        /* Array of tens as words */
+        tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        /* Array of scales as words */
+        scales = ['', 'Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion', 'Quintillion', 'Sextillion', 'Septillion', 'Octillion', 'Nonillion', 'Decillion', 'Undecillion', 'Duodecillion', 'Tredecillion', 'Quatttuor-decillion', 'Quindecillion', 'Sexdecillion', 'Septen-decillion', 'Octodecillion', 'Novemdecillion', 'Vigintillion', 'Centillion'];
+
+        /* Split user arguemnt into 3 digit chunks from right to left */
+        start = string.length;
+        chunks = [];
+        while (start > 0) {
+            end = start;
+            chunks.push(string.slice((start = Math.max(0, start - 3)), end));
+        }
+
+        /* Check if function has enough scale words to be able to stringify the user argument */
+        chunksLen = chunks.length;
+        if (chunksLen > scales.length) {
+            return '';
+        }
+
+        /* Stringify each integer in each chunk */
+        words = [];
+        for (i = 0; i < chunksLen; i++) {
+
+            chunk = parseInt(chunks[i]);
+
+            if (chunk) {
+
+                /* Split chunk into array of individual integers */
+                ints = chunks[i].split('').reverse().map(parseFloat);
+
+                /* If tens integer is 1, i.e. 10, then add 10 to units integer */
+                if (ints[1] === 1) {
+                    ints[0] += 10;
+                }
+
+                /* Add scale word if chunk is not zero and array item exists */
+                if ((word = scales[i])) {
+                    words.push(word);
+                }
+
+                /* Add unit word if array item exists */
+                if ((word = units[ints[0]])) {
+                    words.push(word);
+                }
+
+                /* Add tens word if array item exists */
+                if ((word = tens[ints[1]])) {
+                    words.push(word);
+                }
+
+                /* Add 'and' string after units or tens integer if: */
+                if (ints[0] || ints[1]) {
+
+                    /* Chunk has a hundreds integer or chunk is the first of multiple chunks */
+                    if (ints[2] || !i && chunksLen) {
+                        words.push(and);
+                    }
+
+                }
+
+                /* Add hundreds word if array item exists */
+                if ((word = units[ints[2]])) {
+                    words.push(word + ' hundred');
+                }
+
+            }
+
+        }
+
+        return words.reverse().join(' ');
+
+    }
+
+    function EditBillData(result) {
+        if (result != undefined && result != null && result != "") {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "serialNo": result }),
+                url: "/Weighment/ReadBilledvehicle",
+                success: function (result) {
+                    //$("#billNo").val(result[0].serialNo);
+                    //$("#dateBill").val(result[0].dateStr);
+                    $("#vehicleNoBill").val(result[0].vehicleNo);
+                    $("#toName").val(result[0].customerName);
+                    $("#placeOfDeliveryBill").val(result[0].placeOfDelivery);
+                    $("#materialDescription").val(result[0].material);
+                    $("#netWeightQty").val(result[0].netWeight / 1000);
+                    $("#rateBill").val(result[0].rate);
+                    $("#amountBill").val(result[0].netAmount);
+                    $("#totalInWords").val(numberToEnglish(result[0].netAmount));
+
+                    //Remove disabled propoerty
+                    // $('#material').prop("disabled", false);
+
+
+                    var role = '@Session["role"].ToString()';
+                    //if (role != "Admin") {
+                    //    //To make only the admin edit the data
+                    //    $('#grossWeight').prop("disabled", true);
+                    //    $('#netWeight').prop("disabled", true);
+                    //    $('#material').prop("disabled", true);
+                    //    $('#rate').prop("disabled", true);
+                    //    $('#tax').prop("disabled", true);
+                    //    $('#rent').prop("disabled", true);
+                    //    //Enable disabled property
+                    //    $('#weighmentType').prop("disabled", true);
+                    //    $('#salesMode').prop("disabled", true);
+                    //    $('#unit').prop("disabled", true);
+                    //    $('#vehicleNo').prop("disabled", true);
+                    //    $('#driverName').prop("disabled", true);
+                    //    $('#placeOfDelivery').prop("disabled", true);
+                    //    $('#customerName').prop("disabled", true);
+                    //    $('#tareWeight').prop("disabled", true);
+
+                    //}
+
+
+                    CalculateTotalWithGST();
+                },
+                error: function (data) {
+                    ShowNotification('bottom', 'right', "Error. Contact Administrator");
+                }
+            });
+
+            $("#BillingDiv").show();
+            $("#WeighmentTable").hide();
+            $("#DateSelectionDiv").hide();
+            
+        }
+    }
+
+   function EditData(result) {
+        if (result != undefined && result != null && result != "") {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "serialNo": result }),
+                url: "/Weighment/ReadBilledvehicle",
+                success: function (result) {
+                    $("#serialNo").val(result[0].serialNo);
+                    $("#date").val(result[0].dateStr);
+                    $("#weighmentType").val(result[0].weighmentType);
+                    $("#salesMode").val(result[0].salesMode);
+                    $("#unit").val(result[0].unit);
+                    $("#vehicleNo").val(result[0].vehicleNo);
+                    $("#driverName").val(result[0].driverName);
+                    $("#customerName").val(result[0].customerName);
+                    $("#placeOfDelivery").val(result[0].placeOfDelivery);
+                    $("#loadType").val("Full Load");
+                    $("#material").val(result[0].material);
+                    $("#grossWeight").val(result[0].grossWeight);
+                    $("#tareWeight").val(result[0].tareWeight);
+                    $("#netWeight").val(result[0].netWeight);
+                    $("#rate").val(result[0].rate);
+                    $("#tax").val(result[0].tax);
+                    $("#rent").val(result[0].rent);
+                    $("#amount").val(result[0].amount);
+                    $("#netAmount").val(result[0].netAmount);
+
+                    //Remove disabled propoerty
+                    $('#material').prop("disabled", false);
+                    $('#tax').prop("disabled", false);
+                    $('#rent').prop("disabled", false);
+
+                    var role = '@Session["role"].ToString()';
+                    if (role != "Admin") {
+                        //To make only the admin edit the data
+                        $('#grossWeight').prop("disabled", true);
+                        $('#netWeight').prop("disabled", true);
+                        $('#material').prop("disabled", true);
+                        $('#rate').prop("disabled", true);
+                        $('#tax').prop("disabled", true);
+                        $('#rent').prop("disabled", true);
+                        //Enable disabled property
+                        $('#weighmentType').prop("disabled", true);
+                        $('#salesMode').prop("disabled", true);
+                        $('#unit').prop("disabled", true);
+                        $('#vehicleNo').prop("disabled", true);
+                        $('#driverName').prop("disabled", true);
+                        $('#placeOfDelivery').prop("disabled", true);
+                        $('#customerName').prop("disabled", true);
+                        $('#tareWeight').prop("disabled", true);
+
+                    }
+
+
+
+                },
+                error: function (data) {
+                    ShowNotification('bottom', 'right', "Error. Contact Administrator");
+                }
+            });
+            $("#weighmentDiv").show();
+            $("#WeighmentTable").hide();
+            $("#DateSelectionDiv").hide();
+
+        }
+
+    }
+
+    function GetColumns() {
+        var columns = [];
+        columns = [
+                        //{
+                        //    //Jimmy Mathew::Billing Module integration::16062018
+                        //    data: "serialNo",
+                        //    "render": function (data, type, row, meta) {
+                        //        var a = "";
+                        //        a = '<a href="#" onclick="EditBillData(\''
+                        //        //+ row.dateStr + '\',\''
+                        //        //+ row.weighmentType + '\',\''
+                        //        //+ row.salesMode + '\',\''
+                        //        //+ row.unit + '\',\''
+                        //        //+ row.vehicleNo + '\',\''
+                        //        //+ row.driverName + '\',\''
+                        //        //+ row.customerName + '\',\''
+                        //        //+ row.placeOfDelivery + '\',\''
+                        //        //+ row.loadType + '\',\''
+                        //        //+ row.material + '\',\''
+                        //        //+ row.grossWeight + '\',\''
+                        //        //+ row.tareWeight + '\',\''
+                        //        //+ row.netWeight + '\',\''
+                        //        //+ row.rate + '\',\''
+                        //        //+ row.tax + '\',\''
+                        //        //+ row.rent + '\',\''
+                        //        //+ row.amount + '\',\''
+                        //        //+ row.netAmount + '\',\''
+                        //        + row.serialNo + '\')">' + 'Generate' + '</a>';
+                        //        return a;
+                        //    }
+                        //},
+                          {
+                              data: "serialNo",
+                              "render": function (data, type, row, meta) {
+                                  var a = "";
+                                  a = '<a href="#" onclick="EditData(\''
+                                  //+ row.dateStr + '\',\''
+                                  //+ row.weighmentType + '\',\''
+                                  //+ row.salesMode + '\',\''
+                                  //+ row.unit + '\',\''
+                                  //+ row.vehicleNo + '\',\''
+                                  //+ row.driverName + '\',\''
+                                  //+ row.customerName + '\',\''
+                                  //+ row.placeOfDelivery + '\',\''
+                                  //+ row.loadType + '\',\''
+                                  //+ row.material + '\',\''
+                                  //+ row.grossWeight + '\',\''
+                                  //+ row.tareWeight + '\',\''
+                                  //+ row.netWeight + '\',\''
+                                  //+ row.rate + '\',\''
+                                  //+ row.tax + '\',\''
+                                  //+ row.rent + '\',\''
+                                  //+ row.amount + '\',\''
+                                  //+ row.netAmount + '\',\''
+                                  + row.serialNo + '\')">' + row.serialNo + '</a>';
+                                  return a;
+                              }
+                          },
+
+                            { data: "dateStr" },
+                            { data: "weighmentType" },
+                            { data: "salesMode" },
+                            { data: "unit" },
+                            { data: "vehicleNo" },
+                            { data: "driverName" },
+                            { data: "customerName" },
+                            { data: "placeOfDelivery" },
+                            { data: "loadType" },
+                            { data: "material" },
+                            { data: "grossWeight" },
+                            { data: "tareWeight" },
+                            { data: "netWeight" },
+                            { data: "rate" },
+                            { data: "tax" },
+                            { data: "rent" },
+                            { data: "amount" },
+                            { data: "netAmount" },
+                            { data: "createdBy" },
+                            { data: "updatedBy" },
+
+
+
+        ];
+        return columns;
+    }
+    //Jimmy Mathew::Adding date functionality to History::10032018
+    function GenerateDateHistory() {
+        var fromDate = $("#fromDate").val();
+        var toDate = $("#toDate").val();
+        if (fromDate == "" || fromDate == null || fromDate == undefined) {
+            alert("Please enter from date");
+            return false;
+        }
+        else if (toDate == "" || toDate == null || toDate == undefined) {
+            alert("Please enter to date");
+            return false;
+        }
+        else {
+            var fromDateStr = "";
+            var toDateStr = "";
+            fromDate = new Date(fromDate);
+            var fromDay = fromDate.getDate();
+            var fromMonth = fromDate.getMonth() + 1;
+            var fromYear = fromDate.getFullYear();
+            fromDateStr = fromYear + '-' + fromMonth + '-' + fromDay;
+            toDate = new Date(toDate);
+            var toDay = toDate.getDate();
+            var toMonth = toDate.getMonth() + 1;
+            var toYear = toDate.getFullYear();
+            toDateStr = toYear + '-' + toMonth + '-' + toDay;
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "fromDate": fromDateStr, "toDate": toDateStr }),
+                url: "/Weighment/GetDateWiseHistory",
+                success: function (result) {
+                    refreshgrid(result, "");
+                },
+
+            });
+        }
+    }
+    function refreshgrid(itemlist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#historygrid').DataTable({
+            data: itemlist,
+            columns: GetColumns(),
+            //buttons: $scope.GetAddButton(),
+            "bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+
+
+            //"aaSorting": [[1, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    function CalculateTotalWithGST() {
+        var sgstRate = 2.5;
+        var cgstRate = 2.5;
+        var netWeightQty = parseFloat($("#netWeightQty").val());
+        var rateBill = parseFloat($("#rateBill").val());
+        var amountBill = parseFloat(netWeightQty * rateBill);
+        $("#amountBill").val(amountBill);
+        var cgst = parseFloat($("#cgst").val());
+        var sgst = parseFloat($("#sgst").val());
+        var cgst = (amountBill * cgstRate) / 100;
+        $("#cgst").val(cgst);
+        var sgst = (amountBill * sgstRate) / 100;
+        $("#sgst").val(sgst);
+        var total = parseInt(amountBill + cgst + sgst);
+        $("#mainTotal").val(total);
+        $("#totalInWords").val(numberToEnglish(total));
+        
+
+    }
+    function billSave() {
+       
+        var toName = $("#toName").val();
+        var addLine1 = $("#addLine1").val();
+        var addLine2 = $("#addLine2").val();
+        var addLine3 = $("#addLine3").val();
+        var transportMode = $("#transportMode").val();
+        var vehicleNoBill = $("#vehicleNoBill").val();
+        var placeOfDeliveryBill = $("#placeOfDeliveryBill").val();
+        var materialDescription = $("#materialDescription").val();
+        var netWeightQty = $("#netWeightQty").val();
+        var rateBill = $("#rateBill").val();
+        var amountBill = parseInt($("#amountBill").val());
+        var cgst = parseInt($("#cgst").val());
+        var sgst = parseInt($("#sgst").val());
+        var mainTotal = $("#mainTotal").val();
+        var totalInWords = $("#totalInWords").val();
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            data: JSON.stringify({ "toName": toName, "addLine1": addLine1, "addLine2": addLine2, "addLine3": addLine3, "transportMode": transportMode, "vehicleNoBill": vehicleNoBill, "placeOfDeliveryBill": placeOfDeliveryBill, "materialDescription": materialDescription, "netWeightQty": netWeightQty, "rateBill": rateBill, "amountBill": amountBill, "cgst": cgst, "sgst": sgst, "mainTotal": mainTotal, "totalInWords": totalInWords }),
+            url: "/Weighment/SaveBillingDetails",
+            success: function (result) {
+
+                //location.reload();
+                if (result[0].IsSuccess == true) {
+                    ShowNotification('bottom', 'right', "Billing Details saved successfully");
+                    //BillPrint();
+                }
+            },
+            error: function (data) {
+                ShowNotification('bottom', 'right', "Error. Contact Administrator");
+            }
+        });
+    }
+    $(document).ready(function () {
+        $("#weighmentDiv").hide();
+        //Jimmy Mathew::Billing Module integration::16062018
+        $("#BillingDiv").hide();
+        $("#weighmentDiv").hide();
+        $("#WeighmentTable").show();
+        $('.form-group').on('focusout', function () {
+            $(this).removeClass('is-empty');
+            $(this).addClass('is-focused');
+        });
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Weighment/GetHistory",
+            success: function (result) {
+                refreshgrid(result, null);
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+
+    });
+</script>
+<div>
+    <a href="/Weighment/History" class="navbar-brand"> History </a>
+    @*<button type="submit" class="btn btn-primary pull-right" onclick="AddItem()">Add</button>*@
+</div>
+<br />
+<div class="row">
+<div id="DateSelectionDiv">
+        <div class="col-md-2" style="margin-left: -88px;">
+            <div class="form-group label-floating">
+                <label>From</label>
+                <input id="fromDate" type="datetime-local" class="form-control" value="2018-01-01T00:00:00">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group label-floating">
+                <label>To</label>
+                <input id="toDate" type="datetime-local" class="form-control" value="2018-01-01T00:00:00">
+            </div>
+        </div>
+
+
+        <div class="col-md-1">
+            <div class="form-group label-floating">
+                <button type="submit" class="btn btn-primary" onclick="GenerateDateHistory()">Get</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content" id="WeighmentTable" style="margin-top:-30px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div style="width:1089px; overflow: auto;">
+                <table id="historygrid" class="display" cellspacing="0" width="100">
+                    <thead>
+                        <tr>
+                            <th style="width:20%;">Bill</th>
+                            <th style="width:20%;">Serial No</th>
+                            <th style="width:10%;">Date</th>
+                            <th style="width:10%;">Type</th>
+                            <th style="width:10%;">Mode</th>
+                            <th style="width:10%;">Unit</th>
+                            <th style="width:10%;">Vehicle</th>
+                            <th style="width:10%;">Driver</th>
+                            <th style="width:10%;">Customer</th>
+                            <th style="width:10%;">Place</th>
+                            <th style="width:20%;">Load Type</th>
+                            <th style="width:10%;">Material</th>
+                            <th style="width:10%;">Gross Weight</th>
+                            <th style="width:10%;">Tare Weight</th>
+                            <th style="width:10%;">Net Weight</th>
+                            <th style="width:10%;">Rate</th>
+                            <th style="width:10%;">Tax</th>
+                            <th style="width:10%;">Rent</th>
+                            <th style="width:10%;">Amount</th>
+                            <th style="width:10%;">Net Amount</th>
+                            <th style="width:10%;">Created By</th>
+                            <th style="width:10%;">Updated By</th>
+
+
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="weighmentDiv">
+    <div class="content" style="margin-top:-30px;">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header" data-background-color="purple">
+                            <h4 class="title">Weighment</h4>
+                            <p class="category">Weighment details</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="col-lg-8">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Serial No</label>
+                                                <input id="serialNo" type="text" class="form-control" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Date</label>
+                                                <input id="date" type="text" class="form-control" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Weightment Type</label>
+
+                                                <select id="weighmentType" class="form-control">
+                                                    <option value="0">Select...</option>
+                                                    <option value="Sales">Sales</option>
+                                                    <option value="Purchase">Purchase</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Sales Mode</label>
+                                                <select id="salesMode" class="form-control">
+                                                    <option value="0">Select...</option>
+                                                    <option value="Cash">Cash</option>
+                                                    <option value="Credit">Credit</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Unit</label>
+                                                <select id="unit" class="form-control">
+                                                    <option value="0">Select...</option>
+                                                    <option value="ton">ton</option>
+                                                    <option value="cft">cft</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Vehicle No</label>
+                                                <input type="text" id="vehicleNo" onchange="getVehicleDetails()" list="vehicleNumberList" class="form-control" />
+                                                <datalist id="vehicleNumberList"></datalist>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Driver Name</label>
+                                                <input id="driverName" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Place Of Delivery</label>
+                                                <input id="placeOfDelivery" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Gross Weight</label>
+                                                <input id="grossWeight" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Tare Weight</label>
+                                                <input id="tareWeight" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Net Weight</label>
+                                                <input id="netWeight" type="text" class="form-control">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Customer</label>
+                                                <input type="text" id="customerName" list="customerList" class="form-control" />
+                                                <datalist id="customerList"></datalist>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Load Type</label>
+                                                <select id="loadType" class="form-control" disabled>
+                                                    <option value="0">Select...</option>
+                                                    <option value="Empty">Empty</option>
+                                                    <option value="Full Load">Full Load</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Materials</label>
+                                                @*<input id="material" type="text" class="form-control" disabled>*@
+                                                <input type="text" id="material" onchange="GetMaterialRate()" list="materailList" class="form-control" />
+                                                <datalist id="materailList"></datalist>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Rate</label>
+                                                <input id="rate" type="number" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Tax</label>
+                                                <input id="tax" type="number" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Rent</label>
+                                                <input id="rent" type="number" class="form-control">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Amount</label>
+                                                <input id="amount" type="number" class="form-control" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group label-floating is-focused">
+                                                    <label class="control-label">Net Amount</label>
+                                                    <input id="netAmount" type="number" class="form-control" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button id="WeighSave" type="button" onclick="printDialogOpen()" class="btn btn-primary pull-left">Save</button>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    
+
+                                </div>
+
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@*Jimmy Mathew::Billing Module integration::16062018*@
+<div id="BillingDiv">
+    <div class="content" style="margin-top:-30px;">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header" data-background-color="purple">
+                            <h4 class="title">Billing</h4>
+                            <p class="category">Billing details</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="col-lg-8">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Bill No</label>
+                                            <input id="billNo" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Date</label>
+                                            <input id="dateBill" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">To</label>
+
+                                            <input id="toName" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Address L1</label>
+                                            <input id="addLine1" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Address L2</label>
+                                            <input id="addLine2" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Address L3</label>
+                                            <input id="addLine3" type="text" class="form-control">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Transport Mode</label>
+                                            <input id="transportMode" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Vehicle No</label>
+                                            <input id="vehicleNoBill" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Place of Delivery</label>
+                                            <input id="placeOfDeliveryBill" type="text" class="form-control">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Description</label>
+                                            <input id="materialDescription" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Quantity</label>
+                                            <input id="netWeightQty" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Rate</label>
+                                            <input id="rateBill" type="text" onchange="CalculateTotalWithGST()" class="form-control">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Amount</label>
+
+                                            <input id="amountBill" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">CGST</label>
+                                            <input id="cgst" type="text" class="form-control" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">SGST</label>
+                                            <input id="sgst" type="text" class="form-control" value="0">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Total Amount</label>
+                                            <input id="mainTotal" type="text" class="form-control" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Total in words</label>
+                                            <input id="totalInWords" type="text" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button id="billSave" type="button" onclick="printBillingDialogOpen()" class="btn btn-primary pull-left">Save</button>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

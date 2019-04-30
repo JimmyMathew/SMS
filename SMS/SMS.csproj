@@ -26,7 +26,6 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
-    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -228,12 +227,24 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\billDetails.cs" />
     <Compile Include="Models\ComDetails.cs" />
+    <Compile Include="Models\comport.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\customer.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\CustomerDetails.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\item.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MaterialReport.cs" />
     <Compile Include="Models\PartyDetails.cs" />
+    <Compile Include="Models\party_details.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Response.cs" />
     <Compile Include="Models\sms.Context.cs">
       <AutoGen>True</AutoGen>
@@ -250,8 +261,17 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>sms.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\user.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\UserDetails.cs" />
+    <Compile Include="Models\vehicle.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\VehicleDetails.cs" />
+    <Compile Include="Models\weighment.cs">
+      <DependentUpon>sms.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\WeighmentDetails.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

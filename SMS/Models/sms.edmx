@@ -1,37 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx">
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
   <!-- EF Runtime content -->
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="smsModel.Store" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm/ssdl">
-        <EntityType Name="bill">
-          <Key>
-            <PropertyRef Name="billNo" />
-          </Key>
-          <Property Name="billNo" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="dateBill" Type="text" />
-          <Property Name="toName" Type="varchar" MaxLength="500" />
-          <Property Name="addLine1" Type="varchar" MaxLength="500" />
-          <Property Name="addLine2" Type="varchar" MaxLength="500" />
-          <Property Name="addLine3" Type="varchar" MaxLength="500" />
-          <Property Name="transportMode" Type="varchar" MaxLength="100" />
-          <Property Name="vehicleNoBill" Type="varchar" MaxLength="100" />
-          <Property Name="placeOfDeliveryBill" Type="varchar" MaxLength="100" />
-          <Property Name="materialDescription" Type="varchar" MaxLength="100" />
-          <Property Name="netWeightQty" Type="varchar" MaxLength="100" />
-          <Property Name="rateBill" Type="double" />
-          <Property Name="amountBill" Type="double" />
-          <Property Name="totalAmountBill" Type="double" />
-          <Property Name="totalInWords" Type="varchar" MaxLength="500" />
-          <Property Name="cgst" Type="double" />
-          <Property Name="sgst" Type="double" />
-          <Property Name="mainTotal" Type="double" />
-          <Property Name="createdBy" Type="varchar" MaxLength="100" />
-          <Property Name="createdOn" Type="datetime" Precision="0" />
-          <Property Name="modifiedBy" Type="varchar" MaxLength="100" />
-          <Property Name="ModifiedOn" Type="datetime" Precision="0" />
-        </EntityType>
+    <Schema Namespace="smsModel.Store" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="comport">
           <Key>
             <PropertyRef Name="id" />
@@ -155,14 +128,13 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="smsModelStoreContainer">
-          <EntitySet Name="bill" EntityType="Self.bill" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="comport" EntityType="Self.comport" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="customer" EntityType="Self.customer" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="item" EntityType="Self.item" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="party_details" EntityType="Self.party_details" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="users" EntityType="Self.users" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="vehicle" EntityType="Self.vehicle" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
-          <EntitySet Name="weighment" EntityType="Self.weighment" Schema="sms" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="comport" EntityType="Self.comport" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="customer" EntityType="Self.customer" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="item" EntityType="Self.item" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="party_details" EntityType="Self.party_details" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="users" EntityType="Self.users" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="vehicle" EntityType="Self.vehicle" Schema="sms" store:Type="Tables" />
+          <EntitySet Name="weighment" EntityType="Self.weighment" Schema="sms" store:Type="Tables" />
           <AssociationSet Name="vehicle_ibfk_1" Association="Self.vehicle_ibfk_1">
             <End Role="party_details" EntitySet="party_details" />
             <End Role="vehicle" EntitySet="vehicle" />
@@ -171,9 +143,8 @@
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="smsModel" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2006/04/edm" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+      <Schema Namespace="smsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="smsEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="bills" EntityType="smsModel.bill" />
           <EntitySet Name="comports" EntityType="smsModel.comport" />
           <EntitySet Name="customers" EntityType="smsModel.customer" />
           <EntitySet Name="items" EntityType="smsModel.item" />
@@ -186,33 +157,6 @@
             <End Role="vehicle" EntitySet="vehicles" />
           </AssociationSet>
         </EntityContainer>
-        <EntityType Name="bill">
-          <Key>
-            <PropertyRef Name="billNo" />
-          </Key>
-          <Property Name="billNo" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="dateBill" Type="String" MaxLength="65535" FixedLength="false" Unicode="false" />
-          <Property Name="toName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="addLine1" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="addLine2" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="addLine3" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="transportMode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="vehicleNoBill" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="placeOfDeliveryBill" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="materialDescription" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="netWeightQty" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="rateBill" Type="Double" />
-          <Property Name="amountBill" Type="Double" />
-          <Property Name="totalAmountBill" Type="Double" />
-          <Property Name="totalInWords" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="cgst" Type="Double" />
-          <Property Name="sgst" Type="Double" />
-          <Property Name="mainTotal" Type="Double" />
-          <Property Name="createdBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="createdOn" Type="DateTime" />
-          <Property Name="modifiedBy" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModifiedOn" Type="DateTime" />
-        </EntityType>
         <EntityType Name="comport">
           <Key>
             <PropertyRef Name="id" />
@@ -341,36 +285,8 @@
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
-      <Mapping Space="C-S" xmlns="urn:schemas-microsoft-com:windows:storage:mapping:CS">
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="smsModelStoreContainer" CdmEntityContainer="smsEntities">
-          <EntitySetMapping Name="bills">
-            <EntityTypeMapping TypeName="smsModel.bill">
-              <MappingFragment StoreEntitySet="bill">
-                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
-                <ScalarProperty Name="modifiedBy" ColumnName="modifiedBy" />
-                <ScalarProperty Name="createdOn" ColumnName="createdOn" />
-                <ScalarProperty Name="createdBy" ColumnName="createdBy" />
-                <ScalarProperty Name="mainTotal" ColumnName="mainTotal" />
-                <ScalarProperty Name="sgst" ColumnName="sgst" />
-                <ScalarProperty Name="cgst" ColumnName="cgst" />
-                <ScalarProperty Name="totalInWords" ColumnName="totalInWords" />
-                <ScalarProperty Name="totalAmountBill" ColumnName="totalAmountBill" />
-                <ScalarProperty Name="amountBill" ColumnName="amountBill" />
-                <ScalarProperty Name="rateBill" ColumnName="rateBill" />
-                <ScalarProperty Name="netWeightQty" ColumnName="netWeightQty" />
-                <ScalarProperty Name="materialDescription" ColumnName="materialDescription" />
-                <ScalarProperty Name="placeOfDeliveryBill" ColumnName="placeOfDeliveryBill" />
-                <ScalarProperty Name="vehicleNoBill" ColumnName="vehicleNoBill" />
-                <ScalarProperty Name="transportMode" ColumnName="transportMode" />
-                <ScalarProperty Name="addLine3" ColumnName="addLine3" />
-                <ScalarProperty Name="addLine2" ColumnName="addLine2" />
-                <ScalarProperty Name="addLine1" ColumnName="addLine1" />
-                <ScalarProperty Name="toName" ColumnName="toName" />
-                <ScalarProperty Name="dateBill" ColumnName="dateBill" />
-                <ScalarProperty Name="billNo" ColumnName="billNo" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="comports">
             <EntityTypeMapping TypeName="smsModel.comport">
               <MappingFragment StoreEntitySet="comport">
@@ -493,22 +409,22 @@
     </edmx:Mappings>
   </edmx:Runtime>
   <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
-  <edmx:Designer>
-    <edmx:Connection>
-      <edmx:DesignerInfoPropertySet>
-        <edmx:DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
-      </edmx:DesignerInfoPropertySet>
-    </edmx:Connection>
-    <edmx:Options>
-      <edmx:DesignerInfoPropertySet>
-        <edmx:DesignerProperty Name="ValidateOnBuild" Value="true" />
-        <edmx:DesignerProperty Name="EnablePluralization" Value="true" />
-        <edmx:DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
-        <edmx:DesignerProperty Name="UseLegacyProvider" Value="false" />
-        <edmx:DesignerProperty Name="CodeGenerationStrategy" Value="None" />
-      </edmx:DesignerInfoPropertySet>
-    </edmx:Options>
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
     <!-- Diagram content (shape and connector positions) -->
-    <edmx:Diagrams />
-  </edmx:Designer>
+    <Diagrams></Diagrams>
+  </Designer>
 </edmx:Edmx>

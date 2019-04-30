@@ -1,0 +1,259 @@
+﻿@{
+    ViewBag.Title = "Users";
+}
+<style>
+    body .modal-open .modal {
+        display: flex !important;
+        height: 100%;
+    }
+
+        body.modal-open .modal .modal-dialog {
+            margin: auto;
+        }
+</style>
+<script>
+    var table;
+
+    function EditData(employeeName, username,password,role,id) {
+        $("#userModal").modal('show');
+        $("#employeeName").val(employeeName);
+        $("#username").val(username);
+        $("#password").val(password);
+        $("#role").val(role);
+        $("#id").val(id);
+
+    }
+    function DeleteData(id) {
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            data: JSON.stringify({ "id": id }),
+            url: "/Master/DeleteUsers",
+            success: function (result) {
+                //refreshgrid(result[1].Data);
+                refreshgrid(result[1].Data, result[0].Message);
+                //ShowNotification('bottom', 'right', result[0].Message);
+            },
+
+        });
+
+    }
+    function GetColumns() {
+        var columns = [];
+        columns = [
+                        {
+                            data: "id",
+                            "render": function (data, type, row, meta) {
+                                var a = "";
+                                a = '<a href="#" onclick="EditData(\''
+                                + row.employeeName + '\',\''
+                                + row.username + '\',\''
+                                + row.password + '\',\''
+                                + row.role + '\',\''
+                                + row.id + '\')">Edit</a> <a href="#"  onclick="DeleteData(\'' + row.id
+                                + '\')">Delete</a>';
+                                return a;
+                            }
+                        },
+
+                            { data: "employeeName" },
+                            { data: "username" },
+                            { data: "password","visible": false, },
+                            { data: "role" },
+                            
+        ];
+        return columns;
+    }
+    function refreshgrid(itemlist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#usergrid').DataTable({
+            data: itemlist,
+            columns: GetColumns(),
+            //buttons: $scope.GetAddButton(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Master/GetAllUsers",
+            success: function (result) {
+                refreshgrid(result, null);
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+
+    });
+    function AddUser() {
+        $("#employeeName").val("");
+        $("#username").val("");
+        $("#password").val("");
+        $("#role").val("");
+        $("#id").val("");
+        $("#userModal").modal('show');
+
+    }
+    function SaveUser() {
+        var employeeName=  $("#employeeName").val();
+        var  username= $("#username").val();
+        var password =$("#password").val();
+        var role=$("#role").val();
+        var id = $("#id").val();
+        if (employeeName == null || employeeName == undefined || employeeName == "") {
+            alert("Please enter the employee name");
+            return false;
+        }
+        else if (role == null || role == undefined || role == "") {
+            alert("Please select the role");
+            return false;
+        }
+        else if (username == null || username == undefined || username == "") {
+            alert("Please enter the user name");
+            return false;
+        }
+        else if (password == null || password == undefined || password == "") {
+            alert("Please enter the password");
+            return false;
+        }
+        else {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "employeeName": employeeName, "username": username, "password": password, "role": role, "id": id }),
+                url: "/Master/SaveUsers",
+                success: function (result) {
+                    $("#userModal").modal('hide');
+                    refreshgrid(result[1].Data, result[0].Message);
+
+                },
+                error: function (data) {
+                    ShowNotification('bottom', 'right', "Error. Contact Administrator");
+                }
+            });
+        }
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#"> Users </a>
+    <button type="submit" class="btn btn-primary pull-right" onclick="AddUser()">Add</button>
+</div>
+
+
+<div class="content" style="margin-top:-30px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div style="width:1089px; overflow: auto;">
+                <table id="usergrid" class="display" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width:35%;"> Action</th>
+                            <th style="width:35%;">Employee Name</th>
+                            <th style="width:35%;">User Name</th>
+                            <th style="width:35%;">Password</th>
+                            <th style="width:35%;">Role</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="userModal" class="modal fade">
+    <img src="evgcms_loading2.gif" ng-show="loading" />
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                @*<h4 class="modal-title" id="modellabel">Confirmation</h4>*@
+
+                @*<div class="card-header" data-background-color="purple">
+                        <h4 class="title">Edit Profile</h4>
+                        <p class="category">Complete your profile</p>
+                    </div>*@
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-header" data-background-color="purple">
+                        <h4 class="title">Add/Edit Users</h4>
+                        <p class="category">Complete user details</p>
+                    </div>
+                    <div class="card-content">
+                        <form>
+                            <input id="id" type="hidden" class="form-control">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Employee Name</label>
+                                        <input id="employeeName" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Role</label>
+                                        @*<input id="role" type="text" class="form-control">*@
+                                        <select id="role" class="form-control">
+                                            <option value="Admin">Admin</option>
+                                            <option value="User">User</option>
+                                        </select>
+                                    </div>
+                                </div>
+                               
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group label-floating">
+                                        <label>Username</label>
+                                        <input id="username" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group label-floating">
+                                        <label>Password</label>
+                                        <input id="password" type="password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            @*<button type="button" class="btn btn-default" data-dismiss="modal" tabindex="3">Close</button>*@
+                            @*<button type="submit" class="btn btn-primary pull-right" data-dismiss="modal">Close</button>*@
+                            <button type="submit" class="btn btn-primary pull-right" onclick="SaveUser()">Save</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,292 @@
+﻿@{
+    ViewBag.Title = "Sales Report";
+}
+<style>
+    body .modal-open .modal {
+        display: flex !important;
+        height: 100%;
+    }
+
+        body.modal-open .modal .modal-dialog {
+            margin: auto;
+        }
+</style>
+<script>
+    var table;
+    function GetColumns() {
+        var columns = [];
+        columns = [
+                        {
+                            data: "serialNo",
+                        },
+
+                            { data: "dateStr" },
+                            { data: "weighmentType" },
+                            { data: "salesMode" },
+                            { data: "unit" },
+                            { data: "vehicleNo" },
+                            { data: "driverName" },
+                            { data: "customerName" },
+                            { data: "placeOfDelivery" },
+                            { data: "loadType" },
+                            { data: "material" },
+                            { data: "grossWeight" },
+                            { data: "tareWeight" },
+                            { data: "netWeight" },
+                            { data: "rate" },
+                            { data: "tax" },
+                            { data: "rent" },
+                            { data: "amount" },
+                            { data: "netAmount" },
+                            { data: "createdBy" }
+
+        ];
+        return columns;
+    }
+    function refreshgrid(itemlist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#historygrid').DataTable({
+            data: itemlist,
+            columns: GetColumns(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "footerCallback": function (row, data, start, end, display) {
+                var api = this.api(), data;
+
+                // Remove the formatting to get integer data for summation
+                var intVal = function (i) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '') * 1 :
+                        typeof i === 'number' ?
+                        i : 0;
+                };
+                // Total over this page
+                var WeightTotal = api
+                    .column(13, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+                var AmountTotal = api
+                    .column(18, { page: 'current' })
+                    .data()
+                    .reduce(function (a, b) {
+                        return intVal(a) + intVal(b);
+                    }, 0);
+                // Update footer
+                //alert('Weight' + pageTotal + ' ( Total Weight' + total + ' total)');
+
+                var totalWeightLabel = document.getElementById('totalWeightLabel');
+                totalWeightLabel.innerHTML = WeightTotal;
+                var totalAmountLabel = document.getElementById('totalAmountLabel');
+                totalAmountLabel.innerHTML = AmountTotal;
+                //$(api.column(14).footer()).html(
+                //    'Weight' + pageTotal + ' ( Total Weight' + total + ' total)'
+                //);
+            },
+            //"bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $('.form-group').on('focusout', function () {
+            $(this).removeClass('is-empty');
+            $(this).addClass('is-focused');
+        });
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Weighment/SalesReportGenerationToday",
+            success: function (result) {
+                refreshgrid(result, null);
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+    });
+
+    function GenerateDateReports() {
+        
+        var fromTime = $("#fromTime").val();
+        var toTime = $("#toTime").val();
+        if (parseInt(fromTime) > parseInt(toTime)) {
+            alert("To Time should be greater than From Time");
+            return false;
+        }
+        else {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "fromTime": fromTime, "toTime": toTime }),
+                url: "/Weighment/SalesReportTimeBased",
+                success: function (result) {
+                    refreshgrid(result, "");
+                },
+
+            });
+        }
+
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#">Sales Report </a>
+    @*<button type="submit" class="btn btn-primary pull-left" onclick="AddItem()">Add</button>*@
+</div>
+<br />
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group label-floating">
+            <label>From</label>
+            @*<input id="fromTime" type="text" class="form-control">*@
+            <select id="fromTime" class="form-control">
+                <option value="0">12:00 AM</option>
+                <option value="1">1:00 AM</option>
+                <option value="2">2:00 AM</option>
+                <option value="3">3:00 AM</option>
+                <option value="4">4:00 AM</option>
+                <option value="5">5:00 AM</option>
+                <option value="6">6:00 AM</option>
+                <option value="7">7:00 AM</option>
+                <option value="8">8:00 AM</option>
+                <option value="9">9:00 AM</option>
+                <option value="10">10:00 AM</option>
+                <option value="11">11:00 AM</option>
+                <option value="12">12:00 PM</option>
+                <option value="13">1:00 PM</option>
+                <option value="14">2:00 PM</option>
+                <option value="15">3:00 PM</option>
+                <option value="16">4:00 PM</option>
+                <option value="17">5:00 PM</option>
+                <option value="18">6:00 PM</option>
+                <option value="19">7:00 PM</option>
+                <option value="20">8:00 PM</option>
+                <option value="21">9:00 PM</option>
+                <option value="22">10:00 PM</option>
+                <option value="23">11:00 PM</option>
+               
+            </select>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group label-floating">
+            <label>To</label>
+            @*<input id="toTime" type="text" class="form-control">*@
+            <select id="toTime" class="form-control">
+                <option value="0">12:00 AM</option>
+                <option value="1">1:00 AM</option>
+                <option value="2">2:00 AM</option>
+                <option value="3">3:00 AM</option>
+                <option value="4">4:00 AM</option>
+                <option value="5">5:00 AM</option>
+                <option value="6">6:00 AM</option>
+                <option value="7">7:00 AM</option>
+                <option value="8">8:00 AM</option>
+                <option value="9">9:00 AM</option>
+                <option value="10">10:00 AM</option>
+                <option value="11">11:00 AM</option>
+                <option value="12">12:00 PM</option>
+                <option value="13">1:00 PM</option>
+                <option value="14">2:00 PM</option>
+                <option value="15">3:00 PM</option>
+                <option value="16">4:00 PM</option>
+                <option value="17">5:00 PM</option>
+                <option value="18">6:00 PM</option>
+                <option value="19">7:00 PM</option>
+                <option value="20">8:00 PM</option>
+                <option value="21">9:00 PM</option>
+                <option value="22">10:00 PM</option>
+                <option value="23">11:00 PM</option>
+
+            </select>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="form-group label-floating">
+            <button type="submit" class="btn btn-primary" onclick="GenerateDateReports()">Generate</button>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-stats">
+
+            <div class="card-content">
+                <p class="category">Total Weight</p>
+                <h3 class="title">
+                    <span id="totalWeightLabel">0</span>
+
+
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card card-stats">
+
+            <div class="card-content">
+                <p class="category">Total Amount</p>
+                <h3 class="title">
+                    <span id="totalAmountLabel">0</span>
+
+
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content" id="WeighmentTable" style="margin-top:-30px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div style="width:1089px; overflow: auto;">
+                <table id="historygrid" class="display" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th style="width:20%;"> Serial No</th>
+                            <th style="width:10%;">Date</th>
+                            <th style="width:10%;">Weighment Type</th>
+                            <th style="width:10%;">Sales Mode</th>
+                            <th style="width:10%;">Unit</th>
+                            <th style="width:10%;">Vehicle No</th>
+                            <th style="width:10%;">DriverName</th>
+                            <th style="width:10%;">Customer Name</th>
+                            <th style="width:10%;">Place Of Delivery</th>
+                            <th style="width:10%;">Load Type</th>
+                            <th style="width:10%;">Material</th>
+                            <th style="width:10%;">Gross Weight</th>
+                            <th style="width:10%;">Tare Weight</th>
+                            <th style="width:10%;">Net Weight</th>
+                            <th style="width:10%;">Rate</th>
+                            <th style="width:10%;">Tax</th>
+                            <th style="width:10%;">Rent</th>
+                            <th style="width:10%;">Amount</th>
+                            <th style="width:10%;">Net Amount</th>
+                            <th style="width:10%;">Created By</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

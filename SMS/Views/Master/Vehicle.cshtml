@@ -1,0 +1,292 @@
+﻿@{
+    ViewBag.Title = "Vehicle";
+   
+}
+<style>
+    body .modal-open .modal {
+        display: flex !important;
+        height: 100%;
+    }
+
+        body.modal-open .modal .modal-dialog {
+            margin: auto;
+        }
+</style>
+<script>
+    var table;
+
+    function EditData(partyId, vehicleType, vehicleNo, tareWeight, vehicleId)
+    {
+        $("#vehicleModal").modal('show');
+        $("#partyId").val(partyId);
+        $("#vehicleType").val(vehicleType);
+        $("#vehicleNo").val(vehicleNo);
+        $("#tareWeight").val(tareWeight);
+        $("#vehicleId").val(vehicleId);
+    }
+    function DeleteData(vehicleId) {
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            data: JSON.stringify({ "vehicleId": vehicleId }),
+            url: "/Master/DeleteVehicles",
+            success: function (result) {
+                //refreshgrid(result[1].Data);
+                refreshgrid(result[1].Data[0], result[0].Message);
+                //ShowNotification('bottom', 'right', result[0].Message);
+            },
+
+        });
+
+    }
+    function GetColumns() {
+        var columns = [];
+        var role = '@Session["role"].ToString()';
+        if (role.toString() == "Admin") {
+            columns = [
+                            {
+                                data: "vehicleId",
+                                "render": function (data, type, row, meta) {
+                                    var a = "";
+                                    a = '<a href="#" onclick="EditData(\''
+                                     + row.partyId + '\',\''
+                                    + row.vehicleType + '\',\''
+                                    + row.vehicleNo + '\',\''
+                                    + row.tareWeight + '\',\''
+                                    + row.vehicleId + '\')">Edit</a> <a href="#"  onclick="DeleteData(\'' + row.vehicleId
+                                    + '\')">Delete</a>';
+                                    return a;
+                                }
+                            },
+
+                                { data: "partyId" },
+                                 { data: "partyName" },
+                                { data: "vehicleType" },
+                                { data: "vehicleNo" },
+                                { data: "tareWeight" },
+
+
+
+            ];
+        }
+        else {
+            columns = [
+                                { data: "partyId" },
+                                 { data: "partyName" },
+                                { data: "vehicleType" },
+                                { data: "vehicleNo" },
+                                { data: "tareWeight" },
+            ];
+        }
+        return columns;
+    }
+    function refreshgrid(vehiclelist, message) {
+
+        if (table != undefined && table != null)
+            table.destroy();
+
+        table = $('#vehiclegrid').DataTable({
+            data: vehiclelist,
+            columns: GetColumns(),
+            //buttons: $scope.GetAddButton(),
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "bDestroy": true,
+            select: false,
+            lengthChange: false,
+            "order": [[0, "desc"]],
+            //"scroll": "100"
+            //scrollY: '65vh',
+            //scrollCollapse: true,
+
+        });
+
+        if (message != undefined && message != "" && message != null && message && "undefined")
+            ShowNotification('bottom', 'right', message);
+    }
+    $(document).ready(function () {
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            cache: false,
+            type: 'POST',
+            url: "/Master/GetAllVehicles",
+            success: function (result) {
+                refreshgrid(result[0], null);
+                var ddl = $('#partyId');
+                ddl.empty();
+                $.each(result[1].Data, function () {
+                    ddl.append(
+                        $('<option/>', {
+                            value: this.partyId,
+                            html: this.partyName
+                        })
+                    );
+                });
+               
+            },
+            //error: function (data) {
+            //    alert("Error retrieving vehicle details");
+            //}
+        });
+
+    });
+    function AddVehicle() {
+        $("#vehicleId").val("");
+        $("#partyId").val("");
+        $("#vehicleType").val("");
+        $("#vehicleNo").val("");
+        $("#tareWeight").val("");
+        $("#vehicleModal").modal('show');
+       
+    }
+    function SaveVehicle() {
+        var vehicleId =    $("#vehicleId").val();
+        var partyId = $("#partyId").val();
+        var vehicleType =   $("#vehicleType").val();
+        var vehicleNo =   $("#vehicleNo").val();
+        var tareWeight = $("#tareWeight").val();
+        if (partyId == null || partyId == undefined || partyId == "") {
+            alert("Please select the party name");
+            return false;
+        }
+        else if (vehicleNo == null || vehicleNo == undefined || vehicleNo == "") {
+            alert("Please enter the vehicle number");
+            return false;
+        }
+        else if (tareWeight == null || tareWeight == undefined || tareWeight == "") {
+            alert("Please enter the tare weight");
+            return false;
+        }
+        else {
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                cache: false,
+                type: 'POST',
+                data: JSON.stringify({ "vehicleId": vehicleId, "partyId": partyId, "vehicleType": vehicleType, "vehicleNo": vehicleNo, "tareWeight": tareWeight }),
+                url: "/Master/SaveVehicles",
+                success: function (result) {
+                    $("#vehicleModal").modal('hide');
+                    refreshgrid(result[1].Data[0], result[0].Message);
+                },
+                error: function (data) {
+                    ShowNotification('bottom', 'right', "Error. Contact Administrator");
+                }
+            });
+        }
+    }
+</script>
+<div>
+    <a class="navbar-brand" href="#"> Vehicles </a>
+    <button type="submit" class="btn btn-primary pull-right" onclick="AddVehicle()">Add</button>
+</div>
+
+
+<div class="content" style="margin-top:-30px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div style="width:1089px; overflow: auto;">
+                <table id="vehiclegrid" class="display" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            @{ var role = System.Web.HttpContext.Current.Session["role"].ToString();}
+                            @{ if (role == "Admin")
+                             {
+                                <th style="width:20%;"> Action</th>
+                             }}
+                            
+                            <th style="width:20%;">Party Id</th>
+                            <th style="width:20%;">Party Name</th>
+                            <th style="width:20%;">Vehicle Type</th>
+                            <th style="width:20%;">Vehicle No</th>
+                            <th style="width:20%;">Tare Weight</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="vehicleModal" class="modal fade">
+    <img src="evgcms_loading2.gif" ng-show="loading" />
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                @*<h4 class="modal-title" id="modellabel">Confirmation</h4>*@
+
+                @*<div class="card-header" data-background-color="purple">
+                        <h4 class="title">Edit Profile</h4>
+                        <p class="category">Complete your profile</p>
+                    </div>*@
+            </div>
+            
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-header" data-background-color="purple">
+                        <h4 class="title">Add/Edit Vehicles</h4>
+                        <p class="category">Complete vehicle details</p>
+                    </div>
+                    <div class="card-content">
+                        <form>
+                            <input id="vehicleId" type="hidden" class="form-control">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Party Name</label>
+                                        @*<input id="partyId" type="number" class="form-control">*@
+                                  
+                      @*@Html.DropDownListFor(x => x.partyId, new SelectList(Enumerable.Empty<SelectListItem>()))*@
+                                        <select id="partyId" name="partyId" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Vehicle Type</label>
+                                        <select id="vehicleType" class="form-control">
+                                            <option value="0">Select...</option>
+                                            <option value="Supplier">Supplier</option>
+                                            <option value="Contractor">Contractor</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Vehicle No</label>
+                                        <input id="vehicleNo" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group label-floating">
+                                        <label>Tare Weight</label>
+                                        <input id="tareWeight" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            @*<button type="button" class="btn btn-default" data-dismiss="modal" tabindex="3">Close</button>*@
+                            @*<button type="submit" class="btn btn-primary pull-right" data-dismiss="modal">Close</button>*@
+                            <button type="submit" class="btn btn-primary pull-right" onclick="SaveVehicle()">Save</button>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

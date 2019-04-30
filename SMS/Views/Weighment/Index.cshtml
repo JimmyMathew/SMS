@@ -1,0 +1,275 @@
+﻿@{
+    ViewBag.Title = "Weighment";
+}
+
+@{ var role = System.Web.HttpContext.Current.Session["role"].ToString();}
+<div class="content" style="margin-top:-30px;">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header" data-background-color="purple">
+                        <h4 class="title">Weighment</h4>
+                        <p class="category">Weighment details</p>
+                    </div>
+                    <div class="card-content">
+                        <form>
+                            <div class="col-lg-8">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Serial No</label>
+                                            <input id="serialNo" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Date</label>
+                                            <input id="date" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused" >
+                                                <label class="control-label">Weightment Type</label>
+
+                                                <select id="weighmentType" class="form-control">
+                                                    <option value="0">Select...</option>
+                                                    <option value="Sales">Sales</option>
+                                                    <option value="Purchase">Purchase</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Sales Mode</label>
+                                                <select id="salesMode" class="form-control">
+                                                    <option value="0">Select...</option>
+                                                    <option value="Cash">Cash</option>
+                                                    <option value="Credit">Credit</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Unit</label>
+                                                <select id="unit" class="form-control">
+                                                    <option value="0">Select...</option>
+                                                    <option value="ton">ton</option>
+                                                    <option value="cft">cft</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Vehicle No</label>
+                                                <input type="text" id="vehicleNo" onchange="getVehicleDetails()" list="vehicleNumberList" class="form-control" />
+                                                <datalist id="vehicleNumberList">
+                                                    
+                                                </datalist>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Driver Name</label>
+                                                <input id="driverName" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Place Of Delivery</label>
+                                                <input id="placeOfDelivery" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @{ if (role != "Admin")
+                                 {
+                                   
+                            
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Gross Weight</label>
+                                            <input id="grossWeight" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Tare Weight</label>
+                                            <input id="tareWeight" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Net Weight</label>
+                                            <input id="netWeight" type="text" class="form-control" disabled>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                 }
+                                   else
+                                   {
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Gross Weight</label>
+                                                <input id="grossWeight" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Tare Weight</label>
+                                                <input id="tareWeight" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Net Weight</label>
+                                                <input id="netWeight" type="text" class="form-control">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                   }
+}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Customer</label>
+                                                <input type="text" id="customerName" list="customerList" class="form-control"/>
+                                                <datalist id="customerList">
+                                                    
+                                                </datalist>
+                                            </div>
+                                        </div>
+
+                                     
+                                            <div class="col-md-3">
+                                                <div class="form-group label-floating is-focused">
+                                                    <label class="control-label">Load Type</label>
+                                                    <select id="loadType" class="form-control" disabled>
+                                                        <option value="0">Select...</option>
+                                                        <option value="Empty">Empty</option>
+                                                        <option value="Full Load">Full Load</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                        
+                                    </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+
+                                        <div class="form-group label-floating is-focused">
+                                            <label class="control-label">Materials</label>
+                                            @*<input id="material" type="text" class="form-control" disabled>*@
+                                            <input type="text" id="material" onchange="GetMaterialRate()" list="materailList" class="form-control"/>
+                                            <datalist id="materailList"></datalist>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Rate</label>
+                                                <input id="rate" type="number" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Tax</label>
+                                                <input id="tax" type="number" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Rent</label>
+                                                <input id="rent" type="number" class="form-control">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group label-floating is-focused">
+                                                <label class="control-label">Amount</label>
+                                                <input id="amount" type="number" class="form-control" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group label-floating is-focused">
+                                                    <label class="control-label">Net Amount</label>
+                                                    <input id="netAmount" type="number" class="form-control" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                <button id="WeighSave" type="button" onclick="printDialogOpen()" class="btn btn-primary pull-left">Save</button>
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <div class="col-lg-12">
+                                        <div class="card card-stats">
+                                            <div class="card-header" data-background-color="red">
+                                                
+                                                <img src="~/Images/contentcopy.png" />
+                                            </div>
+                                            <div class="card-content">
+                                                <p class="category">Weight</p>
+                                                <h3 class="title">
+                                                    <font style="font-size:50px;"><span id="grossWeightLabel">0</span></font>
+                                                    
+                                                    @*<small>ton</small>*@
+                                                </h3>
+                                            </div>
+                                            <div class="card-footer">
+                                                <div class="stats">
+                                                    
+                                                    <a onclick="ScanGrossWeight()" href="#">Scan Gross Weight</a>
+                                                    <br/>
+                                                    <a onclick="ScanTareWeight()" href="#">Scan Tare Weight</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-header" data-background-color="orange">
+                                                <h4 class="title">Empty List</h4>
+                                                <p class="category">Not yet billed</p>
+                                            </div>
+                                            <div class="card-content table-responsive">
+                                                <div id="emptytable">
+                                                    <table class="table table-hover">
+                                                        <thead class="text-warning">
+                                                        <th>ID</th>
+                                                        <th>Vehicle No</th>
+
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                   
+                                </div>
+                           
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
